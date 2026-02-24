@@ -1,27 +1,26 @@
-._menuGoals_1ennq_1 {
+._menuGoals_skpkm_1 {
   position: fixed;
   top: 0px;
   left: 5px;
   z-index: 1000;
   display: flex;
 }
-._menuGoals_1ennq_1 ._burger_1ennq_8 {
+._menuGoals_skpkm_1 ._burger_skpkm_8 {
   margin-right: 5px;
-  background-image: url('./coin-B0LxaKb3.png');
   display: inline-flex;
   flex-direction: column;
   width: auto;
   flex: 0 0 auto;
 }
-._menuGoals_1ennq_1 ._burgerWrapper_1ennq_16 {
+._menuGoals_skpkm_1 ._burgerWrapper_skpkm_15 {
   position: relative;
   margin-top: -15px;
 }
-._menuGoals_1ennq_1 ._burgerWrapper_1ennq_16 ._burgerImg_1ennq_20 {
+._menuGoals_skpkm_1 ._burgerWrapper_skpkm_15 ._burgerImg_skpkm_19 {
   width: 60px;
   height: 60px;
 }
-._menuGoals_1ennq_1 ._materials_1ennq_24 {
+._menuGoals_skpkm_1 ._materials_skpkm_23 {
   border-radius: 10px;
   margin: 0 10px 0px 10px;
   display: grid;
@@ -30,14 +29,14 @@
   /* 行高自动 */
   align-items: baseline;
 }
-._menuGoals_1ennq_1 ._materials_1ennq_24 ._wrapper_1ennq_33 {
+._menuGoals_skpkm_1 ._materials_skpkm_23 ._wrapper_skpkm_32 {
   background-color: #84a9c8;
   margin-right: 3px;
   padding: 5px;
   border-radius: 0 0 10px 10px;
   height: auto;
 }
-._menuGoals_1ennq_1 ._materials_1ennq_24 ._wrapper_1ennq_33 ._wrapperInner_1ennq_40 {
+._menuGoals_skpkm_1 ._materials_skpkm_23 ._wrapper_skpkm_32 ._wrapperInner_skpkm_39 {
   margin-left: 5px;
   margin-right: 5px;
   justify-content: center;
@@ -46,40 +45,40 @@
   background-color: #fff;
   border-radius: 50%;
 }
-._menuGoals_1ennq_1 ._materials_1ennq_24 ._wrapper_1ennq_33 ._wrapperInner_1ennq_40 ._materialItem_1ennq_49 {
+._menuGoals_skpkm_1 ._materials_skpkm_23 ._wrapper_skpkm_32 ._wrapperInner_skpkm_39 ._materialItem_skpkm_48 {
   width: 40px;
   height: 40px;
 }
-._menuGoals_1ennq_1 ._materials_1ennq_24 ._wrapper_1ennq_33 ._meatPattyWrapper_1ennq_53 {
+._menuGoals_skpkm_1 ._materials_skpkm_23 ._wrapper_skpkm_32 ._meatPattyWrapper_skpkm_52 {
   align-items: flex-start;
 }
-._menuGoals_1ennq_1 ._materials_1ennq_24 ._wrapper_1ennq_33 ._meatPatty_1ennq_53 {
+._menuGoals_skpkm_1 ._materials_skpkm_23 ._wrapper_skpkm_32 ._meatPatty_skpkm_52 {
   text-align: center;
   margin-top: 10px;
 }
-._menuGoals_1ennq_1 ._materials_1ennq_24 ._wrapper_1ennq_33 ._panImg_1ennq_60 {
+._menuGoals_skpkm_1 ._materials_skpkm_23 ._wrapper_skpkm_32 ._panImg_skpkm_59 {
   width: 20px;
   height: 20px;
 }
-._menuGoals_1ennq_1 ._title_1ennq_64 {
+._menuGoals_skpkm_1 ._title_skpkm_63 {
   text-align: center;
   font-size: 16px;
   font-weight: bold;
   background-color: #b9d0e4;
   border-radius: 0 0 10px 10px;
 }
-._menuGoals_1ennq_1 ._title_1ennq_64 ._progress_1ennq_71 {
+._menuGoals_skpkm_1 ._title_skpkm_63 ._progress_skpkm_70 {
   width: 100%;
   height: 20px;
   overflow: hidden;
   margin-bottom: 5px;
 }
-._menuGoals_1ennq_1 ._title_1ennq_64 ._progressBar_1ennq_77 {
+._menuGoals_skpkm_1 ._title_skpkm_63 ._progressBar_skpkm_76 {
   height: 100%;
   background: #4CAF50;
   transition: width 120ms linear;
 }
-._scoreGoal_1ennq_82 {
+._scoreGoal_skpkm_81 {
   position: fixed;
   bottom: 20px;
   left: 10px;
@@ -98,13 +97,13 @@
   /* 缩小到50% */
   background-size: 100px 83px;
 }
-._scoreGoal_1ennq_82 ._score_1ennq_82 {
+._scoreGoal_skpkm_81 ._score_skpkm_81 {
   text-align: center;
   font-size: 30px;
   font-weight: bold;
   color: #fff;
 }
-._timeRemaining_1ennq_107 {
+._timeRemaining_skpkm_106 {
   position: fixed;
   bottom: 20px;
   right: 10px;
@@ -114,21 +113,21 @@
   text-align: center;
   padding: 0 8px;
 }
-._timeRemaining_1ennq_107 ._progressBar_1ennq_77 {
+._timeRemaining_skpkm_106 ._progressBar_skpkm_76 {
   height: 15px;
   margin: 8px 0;
   transition: width 120ms linear;
 }
-._timeRemaining_1ennq_107 ._green_1ennq_122 {
+._timeRemaining_skpkm_106 ._green_skpkm_121 {
   background-color: #4CAF50;
 }
-._timeRemaining_1ennq_107 ._red_1ennq_125 {
+._timeRemaining_skpkm_106 ._red_skpkm_124 {
   background-color: #F11014;
 }
-._timeRemaining_1ennq_107 ._yellow_1ennq_128 {
+._timeRemaining_skpkm_106 ._yellow_skpkm_127 {
   background-color: #F0BF4B;
 }
-._timeRemaining_1ennq_107 ._time_1ennq_107 {
+._timeRemaining_skpkm_106 ._time_skpkm_106 {
   color: #fff;
   font-weight: bold;
   font-size: 30px;

@@ -68908,27 +68908,27 @@ const Hamberger$1 = React$1.memo(Hamberger, (prevProps, nextProps) => {
   );
 });
 Hamberger.displayName = "Hamberger";
-const menuGoals = "_menuGoals_1ennq_1";
-const burger = "_burger_1ennq_8";
-const burgerWrapper = "_burgerWrapper_1ennq_16";
-const burgerImg = "_burgerImg_1ennq_20";
-const materials = "_materials_1ennq_24";
-const wrapper = "_wrapper_1ennq_33";
-const wrapperInner = "_wrapperInner_1ennq_40";
-const materialItem = "_materialItem_1ennq_49";
-const meatPattyWrapper = "_meatPattyWrapper_1ennq_53";
-const meatPatty = "_meatPatty_1ennq_53";
-const panImg = "_panImg_1ennq_60";
-const title = "_title_1ennq_64";
-const progress = "_progress_1ennq_71";
-const progressBar = "_progressBar_1ennq_77";
-const scoreGoal = "_scoreGoal_1ennq_82";
-const score = "_score_1ennq_82";
-const timeRemaining = "_timeRemaining_1ennq_107";
-const green = "_green_1ennq_122";
-const red = "_red_1ennq_125";
-const yellow = "_yellow_1ennq_128";
-const time = "_time_1ennq_107";
+const menuGoals = "_menuGoals_skpkm_1";
+const burger = "_burger_skpkm_8";
+const burgerWrapper = "_burgerWrapper_skpkm_15";
+const burgerImg = "_burgerImg_skpkm_19";
+const materials = "_materials_skpkm_23";
+const wrapper = "_wrapper_skpkm_32";
+const wrapperInner = "_wrapperInner_skpkm_39";
+const materialItem = "_materialItem_skpkm_48";
+const meatPattyWrapper = "_meatPattyWrapper_skpkm_52";
+const meatPatty = "_meatPatty_skpkm_52";
+const panImg = "_panImg_skpkm_59";
+const title = "_title_skpkm_63";
+const progress = "_progress_skpkm_70";
+const progressBar = "_progressBar_skpkm_76";
+const scoreGoal = "_scoreGoal_skpkm_81";
+const score = "_score_skpkm_81";
+const timeRemaining = "_timeRemaining_skpkm_106";
+const green = "_green_skpkm_121";
+const red = "_red_skpkm_124";
+const yellow = "_yellow_skpkm_127";
+const time = "_time_skpkm_106";
 const styles = {
   menuGoals,
   burger,
