@@ -73630,3 +73630,4 @@ const root = client.createRoot(document.querySelector("#root"));
 root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
+//# sourceMappingURL=index-CkWbclbZ.js.map
