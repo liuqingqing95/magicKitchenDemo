@@ -2171,33 +2171,6 @@ function createReduxContextHook(context2 = ReactReduxContext) {
   };
 }
 var useReduxContext = /* @__PURE__ */ createReduxContextHook();
-function createStoreHook(context2 = ReactReduxContext) {
-  const useReduxContext2 = context2 === ReactReduxContext ? useReduxContext : (
-    // @ts-ignore
-    createReduxContextHook(context2)
-  );
-  const useStore2 = () => {
-    const { store: store2 } = useReduxContext2();
-    return store2;
-  };
-  Object.assign(useStore2, {
-    withTypes: () => useStore2
-  });
-  return useStore2;
-}
-var useStore$2 = /* @__PURE__ */ createStoreHook();
-function createDispatchHook(context2 = ReactReduxContext) {
-  const useStore2 = context2 === ReactReduxContext ? useStore$2 : createStoreHook(context2);
-  const useDispatch2 = () => {
-    const store2 = useStore2();
-    return store2.dispatch;
-  };
-  Object.assign(useDispatch2, {
-    withTypes: () => useDispatch2
-  });
-  return useDispatch2;
-}
-var useDispatch = /* @__PURE__ */ createDispatchHook();
 var refEquality = (a2, b2) => a2 === b2;
 function createSelectorHook(context2 = ReactReduxContext) {
   const useReduxContext2 = context2 === ReactReduxContext ? useReduxContext : createReduxContextHook(context2);
@@ -2296,14 +2269,14 @@ const furnitureSlice = createSlice({
   }
 });
 const {
-  registerObstacle: registerObstacle$1,
-  unregisterObstacle: unregisterObstacle$1,
+  registerObstacle: registerObstacle$3,
+  unregisterObstacle: unregisterObstacle$3,
   clearObstacles: clearObstacles$1,
-  setHighlightedFurniture,
+  setHighlightedFurniture: setHighlightedFurniture$1,
   removeHighlightedById,
-  setHighlightId,
-  setRegistry: setRegistry$1,
-  setOpenFoodTable
+  setHighlightId: setHighlightId$1,
+  setRegistry: setRegistry$3,
+  setOpenFoodTable: setOpenFoodTable$1
 } = furnitureSlice.actions;
 const furnitureReducer = furnitureSlice.reducer;
 const initialState$1 = {
@@ -2381,13 +2354,13 @@ const gameSlice = createSlice({
 const {
   setCanvasPosition,
   setControlsTarget,
-  updateBurgerTime,
+  updateBurgerTime: updateBurgerTime$1,
   setBurgers,
-  setScore,
+  setScore: setScore$1,
   start,
   end,
-  setReceiveFood,
-  removeBurger,
+  setReceiveFood: setReceiveFood$1,
+  removeBurger: removeBurger$1,
   restart
 } = gameSlice.actions;
 const gameReducer = gameSlice.reducer;
@@ -2517,21 +2490,21 @@ const slice = createSlice({
   }
 });
 const {
-  registerObstacle,
-  unregisterObstacle,
-  setRealHighlight,
-  updateObstacleInfo,
+  registerObstacle: registerObstacle$2,
+  unregisterObstacle: unregisterObstacle$2,
+  setRealHighlight: setRealHighlight$1,
+  updateObstacleInfo: updateObstacleInfo$1,
   clearObstacles,
-  setGrabOnFurniture,
-  removeGrabOnFurniture,
-  setRegistry,
-  setHighlightedGrab,
-  setDirtyPlates,
-  removeDirtyPlate,
-  removeCleanPlate,
-  setPendingGrabId,
-  removePendingGrabId,
-  setHeldItem
+  setGrabOnFurniture: setGrabOnFurniture$1,
+  removeGrabOnFurniture: removeGrabOnFurniture$1,
+  setRegistry: setRegistry$2,
+  setHighlightedGrab: setHighlightedGrab$1,
+  setDirtyPlates: setDirtyPlates$1,
+  removeDirtyPlate: removeDirtyPlate$1,
+  removeCleanPlate: removeCleanPlate$1,
+  setPendingGrabId: setPendingGrabId$1,
+  removePendingGrabId: removePendingGrabId$1,
+  setHeldItem: setHeldItem$1
 } = slice.actions;
 const obstaclesReducer = slice.reducer;
 const store = configureStore({
@@ -2542,7 +2515,6 @@ const store = configureStore({
   },
   devTools: false
 });
-const useAppDispatch = () => useDispatch();
 const useAppSelector = useSelector;
 function _extends$1() {
   return _extends$1 = Object.assign ? Object.assign.bind() : function(n2) {
@@ -58786,39 +58758,25 @@ class m extends reactExports.Component {
 function C(r2 = [], t2 = []) {
   return r2.length !== t2.length || r2.some((e2, o2) => !Object.is(e2, t2[o2]));
 }
-const useFurnitureObstacleStore = (selector) => {
-  const dispatch = useAppDispatch();
-  const openFoodTable = useAppSelector((s2) => s2.furniture.openFoodTable);
+const setOpenFoodTable = (id2) => store.dispatch(setOpenFoodTable$1(id2));
+const registerObstacle$1 = (handle, info) => store.dispatch(registerObstacle$3({ handle, info }));
+const unregisterObstacle$1 = (handle) => store.dispatch(unregisterObstacle$3(handle));
+const setRegistry$1 = (registered) => store.dispatch(setRegistry$3(registered));
+const setHighlightedFurniture = (playerId, id2, add) => store.dispatch(setHighlightedFurniture$1({ playerId, id: id2, add }));
+const useObstaclesMap = () => {
   const obstacles = useAppSelector((s2) => s2.furniture.obstacles);
-  const obstaclesMap = reactExports.useMemo(() => {
+  return reactExports.useMemo(() => {
     const m2 = /* @__PURE__ */ new Map();
     const raw = obstacles || {};
     Object.keys(raw).forEach((k2) => m2.set(k2, raw[k2]));
     return m2;
   }, [obstacles]);
-  const api = reactExports.useMemo(
-    () => ({
-      setOpenFoodTable: (id2) => dispatch(setOpenFoodTable(id2)),
-      registerObstacle: (handle, info) => {
-        dispatch(registerObstacle$1({ handle, info }));
-      },
-      unregisterObstacle: (handle) => dispatch(unregisterObstacle$1(handle)),
-      clearObstacles: () => dispatch(clearObstacles$1()),
-      isObstacleHandle: (handle) => obstaclesMap.has(handle),
-      getObstacleInfo: (handle) => obstaclesMap.get(handle),
-      getOpenFoodTable: (handle) => openFoodTable[handle],
-      getAllObstacles: () => Array.from(obstaclesMap.values()),
-      getObstacleCount: () => obstaclesMap.size,
-      setRegistry: (registered) => dispatch(setRegistry$1(registered)),
-      // 多玩家高亮家具列表
-      setHighlightedFurniture: (playerId, id2, add) => dispatch(setHighlightedFurniture({ playerId, id: id2, add })),
-      removeHighlightedById: (playerId, id2) => dispatch(removeHighlightedById({ playerId, id: id2 })),
-      setHighlightId: (playerId, id2) => dispatch(setHighlightId({ playerId, id: id2 }))
-    }),
-    [dispatch, obstaclesMap, openFoodTable]
-  );
-  return selector(api);
 };
+const getObstacleInfo$1 = (handle) => {
+  var _a2;
+  return (_a2 = store.getState().furniture.obstacles) == null ? void 0 : _a2[handle];
+};
+const setHighlightId = (playerId, id2) => store.dispatch(setHighlightId$1({ playerId, id: id2 }));
 const useHighlightId = () => useAppSelector((s2) => s2.furniture.highlightIds);
 const useRegistryFurniture = () => useAppSelector((s2) => s2.furniture.registryFurniture);
 const useOpenFoodTableById = (id2) => useAppSelector(
@@ -58827,109 +58785,18 @@ const useOpenFoodTableById = (id2) => useAppSelector(
     return id2 ? ((_a2 = s2.furniture.openFoodTable) == null ? void 0 : _a2[id2]) ?? void 0 : void 0;
   }
 );
-const useObstaclesMap = () => {
-  const obstacles = useAppSelector((s2) => s2.furniture.obstacles);
-  return reactExports.useMemo(
-    () => new Map(Object.entries(obstacles || {})),
-    [obstacles]
-  );
-};
 const useclosedFurnitureArr = (playerId) => useAppSelector((s2) => s2.furniture.highlightedFurniture[playerId] || []);
-function useGrabObstacleStore(selector) {
-  const obstaclesRecord = useAppSelector((s2) => s2.grab.obstacles);
-  const grabOnFurniture = useAppSelector(
-    (s2) => s2.grab.grabOnFurniture
-  );
-  const tempGrabOnFurniture = useAppSelector(
-    (s2) => s2.grab.tempGrabOnFurniture
-  );
-  const dispatch = useAppDispatch();
-  const api = reactExports.useMemo(() => {
-    return {
-      // obstacles: obstaclesMap,
-      // tempGrabOnFurniture: { ...tempGrabOnFurniture },
-      // grabOnFurniture: { ...grabOnFurniture },
-      // registryGrab,
-      // highlightedGrab,
-      // realHighLight,
-      registerObstacle: (handle, info) => dispatch(registerObstacle({ handle, info })),
-      unregisterObstacle: (handle, playerId) => dispatch(unregisterObstacle({ handle, playerId })),
-      setRealHighlight: (playerId, id2) => dispatch(setRealHighlight({ playerId, id: id2 })),
-      updateObstacleInfo: (handle, updates) => dispatch(updateObstacleInfo({ handle, updates })),
-      clearObstacles: () => dispatch(clearObstacles()),
-      isObstacleHandle: (handle) => !!obstaclesRecord[handle],
-      getObstacleInfo: (handle) => obstaclesRecord[handle],
-      getAllObstacles: () => Object.values(obstaclesRecord),
-      getObstaclesByType: (type) => Object.values(obstaclesRecord).filter((o2) => o2.type === type),
-      getObstacleCount: () => Object.keys(obstaclesRecord).length,
-      getGrabOnFurniture: (furnitureId, temp) => temp ? tempGrabOnFurniture[furnitureId] : grabOnFurniture[furnitureId],
-      setGrabOnFurniture: (furnitureId, obstacleId, temp) => dispatch(setGrabOnFurniture({ furnitureId, obstacleId, temp })),
-      removeGrabOnFurniture: (furnitureId, temp) => dispatch(removeGrabOnFurniture({ furnitureId, temp })),
-      setRegistry: (registered) => dispatch(setRegistry({ registered })),
-      setHighlightedGrab: (playerId, id2, add) => dispatch(setHighlightedGrab({ playerId, id: id2, add })),
-      setDirtyPlates: (plates) => dispatch(setDirtyPlates(plates)),
-      removeDirtyPlate: () => dispatch(removeDirtyPlate()),
-      removeCleanPlate: () => dispatch(removeCleanPlate()),
-      setPendingGrabId: (playerId, id2) => dispatch(setPendingGrabId({ playerId, id: id2 })),
-      removePendingGrabId: (playerId, id2) => dispatch(removePendingGrabId({ playerId, id: id2 })),
-      setHeldItem: (playerId, itemId) => dispatch(setHeldItem({ playerId, itemId }))
-    };
-  }, [obstaclesRecord, grabOnFurniture, tempGrabOnFurniture, dispatch]);
-  if (typeof selector === "function") return selector(api);
-  return api;
-}
-useGrabObstacleStore.getState = () => {
-  const s2 = store.getState().grab;
-  return {
-    // obstacles: new Map<string, ObstacleInfo>(Object.entries(s.obstacles)),
-    // grabOnFurniture: {},
-    // tempGrabOnFurniture: {},
-    // registryGrab: s.registryGrab,
-    // highlightedGrab: s.highlightedGrab,
-    // realHighLight: s.realHighLight,
-    registerObstacle: (handle, info) => store.dispatch(registerObstacle({ handle, info })),
-    unregisterObstacle: (handle, playerId) => store.dispatch(unregisterObstacle({ handle, playerId })),
-    setRealHighlight: (playerId, id2) => store.dispatch(setRealHighlight({ playerId, id: id2 })),
-    updateObstacleInfo: (handle, updates) => store.dispatch(updateObstacleInfo({ handle, updates })),
-    clearObstacles: () => store.dispatch(clearObstacles()),
-    isObstacleHandle: (handle) => !!s2.obstacles[handle],
-    getObstacleInfo: (handle) => s2.obstacles[handle],
-    getAllObstacles: () => Object.values(s2.obstacles),
-    getObstaclesByType: (type) => Object.values(s2.obstacles).filter((o2) => o2.type === type),
-    getObstacleCount: () => Object.keys(s2.obstacles).length,
-    getGrabOnFurniture: (furnitureId, temp) => temp ? s2.tempGrabOnFurniture[furnitureId] : s2.grabOnFurniture[furnitureId],
-    setGrabOnFurniture: (furnitureId, obstacleId, temp) => store.dispatch(
-      setGrabOnFurniture({ furnitureId, obstacleId, temp })
-    ),
-    removeGrabOnFurniture: (furnitureId, temp) => store.dispatch(removeGrabOnFurniture({ furnitureId, temp })),
-    setRegistry: (registered) => store.dispatch(setRegistry({ registered })),
-    setHighlightedGrab: (playerId, id2, add) => store.dispatch(setHighlightedGrab({ playerId, id: id2, add })),
-    setDirtyPlates: (plates) => {
-      store.dispatch(setDirtyPlates(plates));
-    },
-    removeDirtyPlate: () => {
-      store.dispatch(removeDirtyPlate());
-    },
-    removeCleanPlate: () => {
-      store.dispatch(removeCleanPlate());
-    },
-    setPendingGrabId: (playerId, id2) => {
-      store.dispatch(setPendingGrabId({ playerId, id: id2 }));
-    },
-    removePendingGrabId: (playerId, id2) => {
-      store.dispatch(removePendingGrabId({ playerId, id: id2 }));
-    },
-    setHeldItem: (playerId, itemId) => {
-      store.dispatch(setHeldItem({ playerId, itemId }));
-    }
-  };
-};
 const useGrabObstaclesMap = () => {
   const obstacles = useAppSelector((s2) => s2.grab.obstacles);
   return reactExports.useMemo(
     () => new Map(Object.entries(obstacles || {})),
     [obstacles]
   );
+};
+const getObstacleInfo = (handle) => store.getState().grab.obstacles[handle];
+const getGrabOnFurniture = (furnitureId, temp) => {
+  const s2 = store.getState().grab;
+  return temp ? s2.tempGrabOnFurniture[furnitureId] : s2.grabOnFurniture[furnitureId];
 };
 const useGrabHeldItem = () => useAppSelector((s2) => s2.grab.heldItem);
 const useGrabPendingIds = () => useAppSelector((s2) => s2.grab.pendingGrabId);
@@ -58939,6 +58806,20 @@ const useRegistryGrab = () => useAppSelector((s2) => s2.grab.registryGrab);
 const useHighlightedGrab = (playerId) => useAppSelector((s2) => s2.grab.highlightedGrab[playerId]);
 const useRealHighlight = (playerId) => useAppSelector((s2) => s2.grab.realHighLight[playerId]);
 const useGetDirtyPlates = () => useAppSelector((s2) => s2.grab.dirtyPlates);
+const registerObstacle = (handle, info) => store.dispatch(registerObstacle$2({ handle, info }));
+const unregisterObstacle = (handle, playerId) => store.dispatch(unregisterObstacle$2({ handle, playerId }));
+const setRealHighlight = (playerId, id2) => store.dispatch(setRealHighlight$1({ playerId, id: id2 }));
+const updateObstacleInfo = (handle, updates) => store.dispatch(updateObstacleInfo$1({ handle, updates }));
+const removeGrabOnFurniture = (furnitureId, temp) => store.dispatch(removeGrabOnFurniture$1({ furnitureId, temp }));
+const setGrabOnFurniture = (furnitureId, obstacleId, temp) => store.dispatch(setGrabOnFurniture$1({ furnitureId, obstacleId, temp }));
+const setDirtyPlates = (plates) => store.dispatch(setDirtyPlates$1(plates));
+const removeDirtyPlate = () => store.dispatch(removeDirtyPlate$1());
+const removeCleanPlate = () => store.dispatch(removeCleanPlate$1());
+const setPendingGrabId = (playerId, id2) => store.dispatch(setPendingGrabId$1({ playerId, id: id2 }));
+const removePendingGrabId = (playerId, id2) => store.dispatch(removePendingGrabId$1({ playerId, id: id2 }));
+const setHeldItem = (playerId, itemId) => store.dispatch(setHeldItem$1({ playerId, itemId }));
+const setHighlightedGrab = (playerId, id2, add) => store.dispatch(setHighlightedGrab$1({ playerId, id: id2, add }));
+const setRegistry = (registered) => store.dispatch(setRegistry$2({ registered }));
 var ERigidBodyType = /* @__PURE__ */ ((ERigidBodyType2) => {
   ERigidBodyType2["grab"] = "grab";
   ERigidBodyType2["furniture"] = "furniture";
@@ -68308,9 +68189,6 @@ const createFoodItem = (item, model, visible = true, modelMapRef2) => {
     isCook: void 0,
     isCut: void 0
   };
-  if (item.type === EFoodType.meatPatty) {
-    obj.isCut = true;
-  }
   return obj;
 };
 function generateUUID$1() {
@@ -69336,44 +69214,16 @@ function requestResponseMessage(ep, pendingListeners, msg, transfers) {
 function generateUUID() {
   return new Array(4).fill(0).map(() => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(16)).join("-");
 }
-function useGame(selector) {
-  const dispatch = useAppDispatch();
-  const api = reactExports.useMemo(() => {
-    return {
-      setCanvasPosition: (pos) => dispatch(setCanvasPosition(pos)),
-      setBurger: (burgers) => dispatch(setBurgers(burgers)),
-      removeBurger: (label) => dispatch(removeBurger(label)),
-      updateBurgerTime: (time2) => dispatch(updateBurgerTime(time2)),
-      start: () => dispatch(start()),
-      end: () => dispatch(end()),
-      restart: () => dispatch(restart()),
-      setScore: (n2) => dispatch(setScore(n2)),
-      setReceiveFood: (b2) => dispatch(setReceiveFood(b2)),
-      setControlsTarget: (pos) => dispatch(setControlsTarget(pos))
-    };
-  }, [dispatch]);
-  if (typeof selector === "function") return selector(api);
-  return api;
-}
-useGame.getState = () => {
-  return {
-    updateBurgerTime: (time2) => store.dispatch(updateBurgerTime(time2)),
-    setCanvasPosition: (pos) => store.dispatch(setCanvasPosition(pos)),
-    setBurger: (burgers) => store.dispatch(setBurgers(burgers)),
-    start: () => store.dispatch(start()),
-    end: () => store.dispatch(end()),
-    restart: () => store.dispatch(restart()),
-    removeBurger: (label) => store.dispatch(removeBurger(label)),
-    setScore: (n2) => store.dispatch(setScore(n2)),
-    setReceiveFood: (b2) => store.dispatch(setReceiveFood(b2)),
-    setControlsTarget: (pos) => store.dispatch(setControlsTarget(pos))
-  };
-};
 const useGameReceiveFood = () => useAppSelector((s2) => s2.game.receiveFood);
 const useGameCanvasPosition = () => useAppSelector((s2) => s2.game.canvasPosition);
 const useGameControlsTarget = () => useAppSelector((s2) => s2.game.canvasPosition);
 const useGameScore = () => useAppSelector((s2) => s2.game.score);
 const useGameBurgers = () => useAppSelector((s2) => s2.game.burgers);
+const updateBurgerTime = (time2) => store.dispatch(updateBurgerTime$1(time2));
+const setBurger = (burgers) => store.dispatch(setBurgers(burgers));
+const removeBurger = (label) => store.dispatch(removeBurger$1(label));
+const setScore = (n2) => store.dispatch(setScore$1(n2));
+const setReceiveFood = (b2) => store.dispatch(setReceiveFood$1(b2));
 const types = [
   [{ name: EFoodType.bread }, { name: EFoodType.meatPatty }],
   [
@@ -69389,11 +69239,6 @@ const types = [
   ]
 ];
 const MenuGoals = () => {
-  const { removeBurger: removeBurger2, updateBurgerTime: updateBurgerTime2, setBurgers: setBurgers2 } = useGame((state) => ({
-    updateBurgerTime: state.updateBurgerTime,
-    setBurgers: state.setBurger,
-    removeBurger: state.removeBurger
-  }));
   const burgers = useGameBurgers();
   const registryGrab = useRegistryGrab();
   const [workerConnected, setWorkerConnected] = reactExports.useState(false);
@@ -69420,7 +69265,7 @@ const MenuGoals = () => {
   const generateMultipleBurgers = () => {
     const count = Math.floor(Math.random() * 3) + 1;
     const newBurgers = Array.from({ length: count }, generateBurger);
-    setBurgers2(newBurgers);
+    setBurger(newBurgers);
   };
   reactExports.useEffect(() => {
     generateMultipleBurgers();
@@ -69434,7 +69279,7 @@ const MenuGoals = () => {
         const hamberger = updates.find((item) => item.progress === 0);
         if (hamberger) {
           reactDomExports.flushSync(() => {
-            removeBurger2(hamberger.label);
+            removeBurger(hamberger.label);
           });
         }
         const arr = updates.map((u2) => ({
@@ -69443,7 +69288,7 @@ const MenuGoals = () => {
           isActive: u2.isActive,
           progress: u2.progress
         }));
-        updateBurgerTime2(arr);
+        updateBurgerTime(arr);
       });
       cbRef.current = cb2;
       (_a2 = apiRef.current) == null ? void 0 : _a2.subscribe(cb2).then(() => {
@@ -69485,7 +69330,7 @@ const MenuGoals = () => {
           return;
         }
         const newBurgers = generateBurger();
-        setBurgers2([newBurgers]);
+        setBurger([newBurgers]);
       }, 1e4);
     }
   }, []);
@@ -69530,54 +69375,47 @@ const MenuGoals = () => {
   }, [burgers]);
   return workerConnected && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles.menuGoals, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "absolute", right: 8, top: 8, zIndex: 999 } }),
-    burgers.map((burger2, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        className: styles.burger,
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles.title, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.timer, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.progress, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    burgers.map((burger2, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles.burger, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles.title, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.timer, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.progress, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: styles.progressBar,
+            style: {
+              width: `${typeof burger2.progressPercentage === "number" ? burger2.progressPercentage : burger2.timeLeft / 60 * 100}%`
+            }
+          }
+        ) }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.burgerWrapper, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { className: styles.burgerImg, src: `./2D/burger.png` }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: styles.materials,
+          style: { ["--cols"]: burger2.materials.length },
+          children: burger2.materials.map((material, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles.wrapper, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
               "div",
               {
-                className: styles.progressBar,
-                style: {
-                  width: `${typeof burger2.progressPercentage === "number" ? burger2.progressPercentage : burger2.timeLeft / 60 * 100}%`
-                }
-              }
-            ) }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.burgerWrapper, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { className: styles.burgerImg, src: `./2D/burger.png` }) })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: styles.materials,
-              style: { ["--cols"]: burger2.materials.length },
-              children: burger2.materials.map((material, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: styles.wrapper, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    className: classNames(
-                      styles.wrapperInner,
-                      material === EFoodType.meatPatty ? styles.meatPattyWrapper : ""
-                    ),
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "img",
-                      {
-                        className: styles.materialItem,
-                        src: `./2D/${material}.png`,
-                        alt: material
-                      }
-                    )
-                  }
+                className: classNames(
+                  styles.wrapperInner,
+                  material === EFoodType.meatPatty ? styles.meatPattyWrapper : ""
                 ),
-                material === EFoodType.meatPatty && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.meatPatty, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "./2D/pan.png", className: styles.panImg }) })
-              ] }, idx))
-            }
-          )
-        ]
-      },
-      index
-    ))
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "img",
+                  {
+                    className: styles.materialItem,
+                    src: `./2D/${material}.png`,
+                    alt: material
+                  }
+                )
+              }
+            ),
+            material === EFoodType.meatPatty && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles.meatPatty, children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: "./2D/pan.png", className: styles.panImg }) })
+          ] }, idx))
+        }
+      )
+    ] }, index))
   ] });
 };
 const Score = () => {
@@ -69620,12 +69458,6 @@ const TimeRemaining = ({ time: time2 = 200 }) => {
 const createTextData = () => {
   const obstacles = useGrabObstaclesMap();
   const { modelMapRef: modelMapRef2 } = reactExports.useContext(GrabContext);
-  const { updateObstacleInfo: updateObstacleInfo2 } = useGrabObstacleStore((s2) => {
-    return {
-      updateObstacleInfo: s2.updateObstacleInfo,
-      setGrabOnFurniture: s2.setGrabOnFurniture
-    };
-  });
   const { grabModels } = reactExports.useContext(ModelResourceContext);
   const burgerWithPlate = (food) => {
     var _a2;
@@ -69638,7 +69470,7 @@ const createTextData = () => {
       });
       const burgerModel = grabModels[EFoodType.burger].clone();
       const id2 = getId(ERigidBodyType.grab, EFoodType.burger, burgerModel.uuid);
-      updateObstacleInfo2(food.id, {
+      updateObstacleInfo(food.id, {
         foodModel: {
           id: id2,
           type: materials2
@@ -69666,13 +69498,6 @@ function GrabbaleWrapper({
 }) {
   const { world } = useRapier();
   const { modelMapRef: modelMapRef2, toolPosRef: toolPosRef2, handleIngredientsApi } = reactExports.useContext(GrabContext);
-  const { getFurnitureObstacleInfo } = useFurnitureObstacleStore((s2) => {
-    return {
-      getFurnitureObstacleInfo: s2.getObstacleInfo
-      // registryFurniture: s.registryFurniture,
-      // furniturelightId: s.highlightId,
-    };
-  });
   const registryFurniture = useRegistryFurniture();
   const pendingGrab = useGrabPendingIds();
   const furnitureObstacles = useObstaclesMap();
@@ -69680,7 +69505,7 @@ function GrabbaleWrapper({
   reactExports.useEffect(() => {
     return () => {
       obstacles.forEach((food) => {
-        unregisterObstacle2(food.id);
+        unregisterObstacle(food.id);
       });
       cleanupTimers();
     };
@@ -69694,21 +69519,12 @@ function GrabbaleWrapper({
   );
   const { addIngredient, stopTimer, getTimer, cleanupTimers } = handleIngredientsApi;
   const unmountHandlers = reactExports.useRef(/* @__PURE__ */ new Map());
-  const removePendingGrabId2 = useGrabObstacleStore(
-    (s2) => s2.removePendingGrabId
-  );
-  const registerObstacle2 = useGrabObstacleStore((s2) => s2.registerObstacle);
-  const unregisterObstacle2 = useGrabObstacleStore((s2) => s2.unregisterObstacle);
   const obstacles = useGrabObstaclesMap();
   const heldItemRecord = useGrabHeldItem();
   const prevHeldItemRecordRef = reactExports.useRef({
     firstPlayer: "",
     secondPlayer: ""
   });
-  const setRegistry2 = useGrabObstacleStore((s2) => s2.setRegistry);
-  const getGrabOnFurniture = useGrabObstacleStore((s2) => s2.getGrabOnFurniture);
-  const setGrabOnFurniture2 = useGrabObstacleStore((s2) => s2.setGrabOnFurniture);
-  const updateObstacleInfo2 = useGrabObstacleStore((s2) => s2.updateObstacleInfo);
   const grabOnFurniture = useGrabOnFurniture();
   const firstHighlight = useRealHighlight("firstPlayer");
   const secondHighlight = useRealHighlight("secondPlayer");
@@ -69730,10 +69546,10 @@ function GrabbaleWrapper({
       (id2) => id2 !== false
     );
     if (firstHighlightId) {
-      return getFurnitureObstacleInfo(firstHighlightId) || false;
+      return getObstacleInfo$1(firstHighlightId) || false;
     }
     return false;
-  }, [furniturelightId, getFurnitureObstacleInfo]);
+  }, [furniturelightId, getObstacleInfo$1]);
   const createIngredientItem = (item) => {
     addIngredient({
       id: item.id,
@@ -69765,12 +69581,12 @@ function GrabbaleWrapper({
       );
       if (furniture) {
         food.area = "table";
-        setGrabOnFurniture2(furniture.key, food.id);
+        setGrabOnFurniture(furniture.key, food.id);
       } else {
         food.area = "floor";
         food.position[1] = 0;
       }
-      registerObstacle2(food.id, { ...food });
+      registerObstacle(food.id, { ...food });
     });
   }, [loading2, registryFurniture]);
   reactExports.useEffect(() => {
@@ -69822,7 +69638,7 @@ function GrabbaleWrapper({
           Object.entries(pendingGrab).forEach(([playerId, arr]) => {
             var _a2;
             if (arr.includes(food.id) && ((_a2 = modelMapRef2.current) == null ? void 0 : _a2.has(food.id))) {
-              removePendingGrabId2(playerId, food.id);
+              removePendingGrabId(playerId, food.id);
             }
           });
         });
@@ -69830,16 +69646,16 @@ function GrabbaleWrapper({
       Object.entries(pendingGrab).forEach(([playerId, arr]) => {
         var _a2;
         if (arr.includes(food.id) && ((_a2 = modelMapRef2.current) == null ? void 0 : _a2.has(food.id))) {
-          removePendingGrabId2(playerId, food.id);
+          removePendingGrabId(playerId, food.id);
         }
       });
       if (!unmountHandlers.current.has(food.id)) {
         unmountHandlers.current.set(food.id, () => {
-          unregisterObstacle2(food.id);
+          unregisterObstacle(food.id);
         });
       }
     });
-  }, [obstacles, registerObstacle2, unregisterObstacle2]);
+  }, [obstacles, registerObstacle, unregisterObstacle]);
   reactExports.useEffect(() => {
     const ids = new Set(Array.from(obstacles.keys()));
     modelNoKnifeCache.current.forEach((_2, key) => {
@@ -69893,7 +69709,7 @@ function GrabbaleWrapper({
     prevObstaclesRef.current = obstacles;
     const length = GRAB_ARR.filter((item) => item.visible !== false).length;
     if (isFoodReady === false && obstacles.size === length && registryFurniture) {
-      setRegistry2(true);
+      setRegistry(true);
       setIsFoodReady(true);
     }
     console.log("obstacles changed:", obstacles);
@@ -69941,7 +69757,7 @@ function GrabbaleWrapper({
           true
         );
       }
-      updateObstacleInfo2(id2, {
+      updateObstacleInfo(id2, {
         visible: true
       });
     },
@@ -70026,22 +69842,6 @@ const ServeDishes = React$1.memo(
     const { modelMapRef: modelMapRef2 } = reactExports.useContext(GrabContext);
     const grabOnFurniture = useGrabOnFurniture();
     const receiveFood = useGameReceiveFood();
-    const setReceiveFood2 = useGame((s2) => s2.setReceiveFood);
-    const {
-      registerObstacle: registerObstacle2,
-      updateObstacleInfo: updateObstacleInfo2,
-      getObstacleInfo,
-      setGrabOnFurniture: setGrabOnFurniture2,
-      getGrabOnFurniture
-    } = useGrabObstacleStore((s2) => {
-      return {
-        registerObstacle: s2.registerObstacle,
-        setGrabOnFurniture: s2.setGrabOnFurniture,
-        getObstacleInfo: s2.getObstacleInfo,
-        getGrabOnFurniture: s2.getGrabOnFurniture,
-        updateObstacleInfo: s2.updateObstacleInfo
-      };
-    });
     const furnitureObstacles = useObstaclesMap();
     const pendingRef = React$1.useRef(/* @__PURE__ */ new Map());
     const getObstacleInfoRef = reactExports.useRef(getObstacleInfo);
@@ -70104,7 +69904,7 @@ const ServeDishes = React$1.memo(
             } else {
               info = newType;
             }
-            updateObstacleInfo2(id2, { foodModel: info });
+            updateObstacleInfo(id2, { foodModel: info });
           } else if (model && dirtyPlate2) {
             const model2 = grabModels[EGrabType.dirtyPlate].clone();
             const newObstacle = createFoodItem(
@@ -70114,19 +69914,19 @@ const ServeDishes = React$1.memo(
               modelMapRef2
             );
             if (putPlateTableId) {
-              setGrabOnFurniture2(putPlateTableId, newObstacle.id);
+              setGrabOnFurniture(putPlateTableId, newObstacle.id);
             }
             newObstacle.position = dirtyPlate2.position;
-            registerObstacle2(newObstacle.id, newObstacle);
+            registerObstacle(newObstacle.id, newObstacle);
           }
           const time2 = pendingRef.current.get(newId) || -1;
           clearTimeout(time2);
           pendingRef.current.delete(newId);
         }, 5e3);
-        setReceiveFood2(false);
+        setReceiveFood(false);
         pendingRef.current.set(newId, timeoutId);
       }
-    }, [receiveFood, setGrabOnFurniture2, grabOnFurniture, updateObstacleInfo2]);
+    }, [receiveFood, setGrabOnFurniture, grabOnFurniture, updateObstacleInfo]);
     useFrame(() => {
       const obj = model.getObjectByName("direction");
       obj.material.map.offset.x += 0.018;
@@ -70199,7 +69999,6 @@ const WashSink = React$1.memo(
   ({ modelRef, type, model, size, id: id2 }) => {
     const dirtyPlateArr = useGetDirtyPlates();
     const cleanPlates = useGetCleanPlates();
-    const removeDirtyPlate2 = useGrabObstacleStore((s2) => s2.removeDirtyPlate);
     const {
       handleIngredientsApi: {
         addIngredient,
@@ -70224,13 +70023,13 @@ const WashSink = React$1.memo(
         if (dirtyPlateArr.length > 1) {
           stopTimer(id2);
           setIngredientStatus(id2, 0);
-          removeDirtyPlate2();
+          removeDirtyPlate();
           setTimeout(() => {
             toggleTimer(id2);
           }, 0);
         } else {
           stopTimer(id2);
-          removeDirtyPlate2();
+          removeDirtyPlate();
           setIngredientStatus(id2, false);
         }
       }
@@ -70387,10 +70186,6 @@ function Level({ updateFurnitureHandle }) {
   const furnitureRigidRefs = reactExports.useRef(
     /* @__PURE__ */ new Map()
   );
-  const { registerObstacle: registerObstacle2, setRegistry: setRegistry2 } = useFurnitureObstacleStore((s2) => ({
-    registerObstacle: s2.registerObstacle,
-    setRegistry: s2.setRegistry
-  }));
   const highlightIds = useHighlightId();
   const getPosition = ({
     position,
@@ -70499,14 +70294,14 @@ function Level({ updateFurnitureHandle }) {
         if (item.type === EFurnitureType.foodTable && item.foodType) {
           basePosition.foodType = item.foodType;
         }
-        registerObstacle2(instanceKey, basePosition);
+        registerObstacle$1(instanceKey, basePosition);
       });
       setPrevModelTypes(Object.keys(grabModels));
     }
   }, [Object.keys(grabModels).length]);
   reactExports.useEffect(() => {
     if (furnitureInstanceModels.current.size === FURNITURE_ARR.length) {
-      setRegistry2(true);
+      setRegistry$1(true);
       const t2 = typeof performance !== "undefined" ? performance.now() : Date.now();
       console.info(
         "Level fully ready in",
@@ -70627,24 +70422,10 @@ const getClosestPoint = (obstacle, playerPos) => {
 function useGrabNear(playerPosRef, playerId) {
   const lastFurnitureResult = reactExports.useRef(false);
   const highlightedByPlayers = reactExports.useRef({});
-  const setHighlightedGrab2 = useGrabObstacleStore((s2) => s2.setHighlightedGrab);
   const highlightedGrab = useHighlightedGrab(playerId);
   const highlightedGrabIds = reactExports.useMemo(() => {
     return highlightedGrab.map((f2) => f2.id).join(",");
   }, [highlightedGrab]);
-  const { setHighlightedFurniture: setHighlightedFurniture2 } = useFurnitureObstacleStore((s2) => {
-    return {
-      // furnitureHighlightId: s.highlightId,
-      setHighlightedFurniture: s2.setHighlightedFurniture,
-      getObstacleInfo: s2.getObstacleInfo
-      // setHighlightedGrab: s.setHighlightedGrab,
-      // highlightedGrab: s.highlightedGrab,
-      // highlightedFurniture: s.highlightedFurniture,
-      // getObstacleInfo: s.getObstacleInfo,
-      // setHighlightedGrab: s.setHighlightedGrab,
-      // highlightedGrab: s.highlightedGrab,
-    };
-  });
   const highlightedFurniture = useclosedFurnitureArr(playerId);
   reactExports.useEffect(() => {
     console.log("Highlighted furniture updated:", highlightedFurniture);
@@ -70657,9 +70438,9 @@ function useGrabNear(playerPosRef, playerId) {
     if (light) {
       if (players.size === 0) {
         if (id2.startsWith("Grab") || id2.startsWith("Tableware")) {
-          setHighlightedGrab2(playerId, id2, true);
+          setHighlightedGrab(playerId, id2, true);
         } else {
-          setHighlightedFurniture2(playerId, id2, true);
+          setHighlightedFurniture(playerId, id2, true);
         }
       }
       players.add(playerId);
@@ -70667,9 +70448,9 @@ function useGrabNear(playerPosRef, playerId) {
       players.delete(playerId);
       if (players.size === 0) {
         if (id2.startsWith("Grab") || id2.startsWith("Tableware")) {
-          setHighlightedGrab2(playerId, id2, false);
+          setHighlightedGrab(playerId, id2, false);
         } else {
-          setHighlightedFurniture2(playerId, id2, false);
+          setHighlightedFurniture(playerId, id2, false);
         }
         delete highlightedByPlayers.current[id2];
       }
@@ -71178,30 +70959,6 @@ const createNewFood = ({
 function useBurgerAssembly() {
   const { grabModels } = reactExports.useContext(ModelResourceContext);
   const { modelMapRef: modelMapRef2 } = reactExports.useContext(GrabContext);
-  const {
-    registerObstacle: registerObstacle2,
-    updateObstacleInfo: updateObstacleInfo2,
-    unregisterObstacle: unregisterObstacle2,
-    setGrabOnFurniture: setGrabOnFurniture2,
-    setPendingGrabId: setPendingGrabId2
-  } = useGrabObstacleStore((s2) => {
-    return {
-      setPendingGrabId: s2.setPendingGrabId,
-      removeGrabOnFurniture: s2.removeGrabOnFurniture,
-      updateObstacleInfo: s2.updateObstacleInfo,
-      getObstacleInfo: s2.getObstacleInfo,
-      unregisterObstacle: s2.unregisterObstacle,
-      registerObstacle: s2.registerObstacle,
-      getGrabOnFurniture: s2.getGrabOnFurniture,
-      setGrabOnFurniture: s2.setGrabOnFurniture
-    };
-  });
-  const { unregisterFurnitureObstacle } = useFurnitureObstacleStore((s2) => {
-    return {
-      getFurnitureObstacleInfo: s2.getObstacleInfo,
-      unregisterFurnitureObstacle: s2.unregisterObstacle
-    };
-  });
   const getNormalFoodModel = reactExports.useCallback(
     (arr) => {
       const types2 = arr.map((item) => item.type);
@@ -71292,8 +71049,8 @@ function useBurgerAssembly() {
           foodModel,
           position: target.position
         };
-        updateObstacleInfo2(target.id || "", info);
-        unregisterObstacle2(otherTarget.id, playerId);
+        updateObstacleInfo(target.id || "", info);
+        unregisterObstacle(otherTarget.id, playerId);
         return {
           putOnTable: highlightedFurniture ? target.id : "",
           leaveGrab
@@ -71308,15 +71065,15 @@ function useBurgerAssembly() {
           foodModel,
           position: target.position
         };
-        updateObstacleInfo2(otherTarget.id || "", info);
-        unregisterObstacle2(target.id, playerId);
+        updateObstacleInfo(otherTarget.id || "", info);
+        unregisterObstacle(target.id, playerId);
         return {
           putOnTable: highlightedFurniture ? otherTarget.id : "",
           leaveGrab
         };
       }
     },
-    [getModel, updateObstacleInfo2, unregisterObstacle2]
+    [getModel, updateObstacleInfo, unregisterObstacle]
   );
   const dropHeld = reactExports.useCallback(
     (infoId, area2, pos) => {
@@ -71327,9 +71084,9 @@ function useBurgerAssembly() {
       if (pos) {
         info.position = pos;
       }
-      updateObstacleInfo2(infoId, info);
+      updateObstacleInfo(infoId, info);
     },
-    [updateObstacleInfo2]
+    [updateObstacleInfo]
   );
   const panAddIngredientToNormal = reactExports.useCallback(
     (target, other, leaveGrab, highlightedFurniture, updateHand) => {
@@ -71381,15 +71138,15 @@ function useBurgerAssembly() {
         foodModel
       };
       if (isInclude(target.type, "pan")) {
-        updateObstacleInfo2(target.id || "", { foodModel: void 0 });
-        updateObstacleInfo2(other.id || "", info);
+        updateObstacleInfo(target.id || "", { foodModel: void 0 });
+        updateObstacleInfo(other.id || "", info);
         updateHand({
           ...other,
           ...info
         });
       } else {
-        updateObstacleInfo2(other.id || "", { foodModel: void 0 });
-        updateObstacleInfo2(target.id || "", info);
+        updateObstacleInfo(other.id || "", { foodModel: void 0 });
+        updateObstacleInfo(target.id || "", info);
         updateHand({
           ...other,
           foodModel: void 0
@@ -71402,7 +71159,7 @@ function useBurgerAssembly() {
         leaveGrab
       };
     },
-    [getNormalFoodModel, grabModels, updateObstacleInfo2]
+    [getNormalFoodModel, grabModels, updateObstacleInfo]
   );
   const baseFoodModelCreateBurger = reactExports.useCallback(
     (target, otherTarget, leaveGrab, highlightedFurniture, playerId) => {
@@ -71429,8 +71186,8 @@ function useBurgerAssembly() {
             foodModel,
             position: target.position
           };
-          updateObstacleInfo2(target.id || "", info);
-          unregisterObstacle2(otherTarget.id, playerId);
+          updateObstacleInfo(target.id || "", info);
+          unregisterObstacle(otherTarget.id, playerId);
           (_b2 = modelMapRef2.current) == null ? void 0 : _b2.delete(
             target.foodModel.id
           );
@@ -71460,8 +71217,8 @@ function useBurgerAssembly() {
             foodModel,
             position: target.position
           };
-          updateObstacleInfo2(otherTarget.id || "", info);
-          unregisterObstacle2(target.id, playerId);
+          updateObstacleInfo(otherTarget.id || "", info);
+          unregisterObstacle(target.id, playerId);
           (_e = modelMapRef2.current) == null ? void 0 : _e.delete(
             otherTarget.foodModel.id
           );
@@ -71473,7 +71230,7 @@ function useBurgerAssembly() {
         };
       }
     },
-    [grabModels, modelMapRef2, unregisterObstacle2, updateObstacleInfo2]
+    [grabModels, modelMapRef2, unregisterObstacle, updateObstacleInfo]
   );
   const plateBurgerAddIngredient = reactExports.useCallback(
     (target, otherTarget, leaveGrab, highlightedFurniture, updateHand, playerId) => {
@@ -71493,8 +71250,8 @@ function useBurgerAssembly() {
               foodModel,
               position: target.position
             };
-            updateObstacleInfo2(target.id || "", info);
-            updateObstacleInfo2(otherTarget.id || "", {
+            updateObstacleInfo(target.id || "", info);
+            updateObstacleInfo(otherTarget.id || "", {
               foodModel: void 0
             });
             updateHand({
@@ -71521,8 +71278,8 @@ function useBurgerAssembly() {
               foodModel,
               position: target.position
             };
-            unregisterObstacle2(target.id, playerId);
-            updateObstacleInfo2(otherTarget.id || "", info);
+            unregisterObstacle(target.id, playerId);
+            updateObstacleInfo(otherTarget.id || "", info);
             (_b2 = modelMapRef2.current) == null ? void 0 : _b2.delete(target.id);
             (_c = modelMapRef2.current) == null ? void 0 : _c.set(id2, burger2);
             return {
@@ -71543,8 +71300,8 @@ function useBurgerAssembly() {
             foodModel,
             position: target.position
           };
-          updateObstacleInfo2(target.id || "", info);
-          unregisterObstacle2(otherTarget.id, playerId);
+          updateObstacleInfo(target.id || "", info);
+          unregisterObstacle(otherTarget.id, playerId);
           return {
             putOnTable: highlightedFurniture ? target.id : "",
             leaveGrab: true
@@ -71563,8 +71320,8 @@ function useBurgerAssembly() {
             foodModel,
             position: target.position
           };
-          updateObstacleInfo2(otherTarget.id || "", info);
-          unregisterObstacle2(target.id, playerId);
+          updateObstacleInfo(otherTarget.id || "", info);
+          unregisterObstacle(target.id, playerId);
           return {
             putOnTable: highlightedFurniture ? otherTarget.id : "",
             leaveGrab: true
@@ -71578,8 +71335,8 @@ function useBurgerAssembly() {
             foodModel,
             position: target.position
           };
-          updateObstacleInfo2(target.id || "", info);
-          unregisterObstacle2(otherTarget.id, playerId);
+          updateObstacleInfo(target.id || "", info);
+          unregisterObstacle(otherTarget.id, playerId);
           return {
             putOnTable: highlightedFurniture ? target.id : "",
             leaveGrab: true
@@ -71587,7 +71344,7 @@ function useBurgerAssembly() {
         }
       }
     },
-    [grabModels, modelMapRef2, unregisterObstacle2, updateObstacleInfo2]
+    [grabModels, modelMapRef2, unregisterObstacle, updateObstacleInfo]
   );
   const createNewBurger = reactExports.useCallback(
     (target, otherTarget, leaveGrab, highlightedFurniture, updateHand, playerId) => {
@@ -71599,7 +71356,7 @@ function useBurgerAssembly() {
         area: target.area,
         modelMapRef: modelMapRef2
       });
-      setPendingGrabId2(playerId, newFood.id);
+      setPendingGrabId(playerId, newFood.id);
       newFood.foodModel = {
         id: newFood.id,
         type: [
@@ -71614,12 +71371,12 @@ function useBurgerAssembly() {
         ]
       };
       newFood.position = target.position;
-      registerObstacle2(newFood.id, newFood);
+      registerObstacle(newFood.id, newFood);
       if (!leaveGrab) {
         updateHand(newFood);
       }
-      unregisterObstacle2(target.id, playerId);
-      unregisterObstacle2(otherTarget.id, playerId);
+      unregisterObstacle(target.id, playerId);
+      unregisterObstacle(otherTarget.id, playerId);
       (_a2 = modelMapRef2.current) == null ? void 0 : _a2.delete(target.id);
       (_b2 = modelMapRef2.current) == null ? void 0 : _b2.delete(otherTarget.id);
       return {
@@ -71627,7 +71384,7 @@ function useBurgerAssembly() {
         leaveGrab
       };
     },
-    [grabModels.burger, registerObstacle2, unregisterObstacle2]
+    [grabModels.burger, registerObstacle, unregisterObstacle]
   );
   const bothPlateCreateBurger = reactExports.useCallback(
     (target, otherTarget, highlightedFurniture, updateHand) => {
@@ -71649,11 +71406,11 @@ function useBurgerAssembly() {
       };
       if (burger2) {
         (_a2 = modelMapRef2.current) == null ? void 0 : _a2.set(id2, burger2);
-        updateObstacleInfo2(target.id || "", {
+        updateObstacleInfo(target.id || "", {
           foodModel,
           position: target.position
         });
-        updateObstacleInfo2(otherTarget.id || "", {
+        updateObstacleInfo(otherTarget.id || "", {
           foodModel: void 0
         });
         updateHand({
@@ -71670,17 +71427,17 @@ function useBurgerAssembly() {
         };
       }
     },
-    [grabModels, modelMapRef2, updateObstacleInfo2]
+    [grabModels, modelMapRef2, updateObstacleInfo]
   );
   const bothPlateChange = reactExports.useCallback(
     (target, otherTarget, highlightedFurniture, updateHand) => {
       if (target.foodModel) {
-        updateObstacleInfo2(target.id || "", {
+        updateObstacleInfo(target.id || "", {
           foodModel: void 0
         });
         let info = {};
         info.foodModel = target.foodModel;
-        updateObstacleInfo2(otherTarget.id || "", {
+        updateObstacleInfo(otherTarget.id || "", {
           foodModel: target.foodModel
         });
         updateHand({
@@ -71692,14 +71449,14 @@ function useBurgerAssembly() {
           leaveGrab: false
         };
       } else {
-        updateObstacleInfo2(target.id || "", {
+        updateObstacleInfo(target.id || "", {
           foodModel: otherTarget.foodModel
         });
         updateHand({
           ...otherTarget,
           foodModel: void 0
         });
-        updateObstacleInfo2(otherTarget.id || "", {
+        updateObstacleInfo(otherTarget.id || "", {
           foodModel: void 0
         });
         return {
@@ -71708,7 +71465,7 @@ function useBurgerAssembly() {
         };
       }
     },
-    [updateObstacleInfo2]
+    [updateObstacleInfo]
   );
   const plateAddMultiNormalFood = reactExports.useCallback(
     (highlight, grab, highlightedFurniture) => {
@@ -71752,8 +71509,8 @@ function useBurgerAssembly() {
       const info = {
         foodModel
       };
-      unregisterFurnitureObstacle(other.id);
-      updateObstacleInfo2(target.id || "", {
+      unregisterObstacle$1(other.id);
+      updateObstacleInfo(target.id || "", {
         ...info,
         position: highlight.position
       });
@@ -71764,7 +71521,7 @@ function useBurgerAssembly() {
         leaveGrab: true
       };
     },
-    [getNormalFoodModel, unregisterFurnitureObstacle, updateObstacleInfo2]
+    [getNormalFoodModel, unregisterObstacle$1, updateObstacleInfo]
   );
   const burgerAddIngredient = reactExports.useCallback(
     (target, otherTarget, leaveGrab, highlightedFurniture, updateHand, playerId) => {
@@ -71783,7 +71540,7 @@ function useBurgerAssembly() {
                 })
               };
               putOnTable = target.id;
-              updateObstacleInfo2(otherTarget.id || "", {
+              updateObstacleInfo(otherTarget.id || "", {
                 foodModel: void 0,
                 position: target.position
               });
@@ -71797,7 +71554,7 @@ function useBurgerAssembly() {
                 type: otherTarget.type
               })
             };
-            unregisterObstacle2(otherTarget.id, playerId);
+            unregisterObstacle(otherTarget.id, playerId);
             (_b2 = modelMapRef2.current) == null ? void 0 : _b2.delete(otherTarget.id);
           }
           const info = {
@@ -71810,7 +71567,7 @@ function useBurgerAssembly() {
               foodModel: void 0
             });
           }
-          updateObstacleInfo2(target.id || "", info);
+          updateObstacleInfo(target.id || "", info);
         } else {
           foodModel = {
             id: otherTarget.foodModel.id,
@@ -71819,7 +71576,7 @@ function useBurgerAssembly() {
               type: target.foodModel.type
             })
           };
-          updateObstacleInfo2(otherTarget.id, {
+          updateObstacleInfo(otherTarget.id, {
             foodModel: void 0
           });
           (_c = modelMapRef2.current) == null ? void 0 : _c.delete(target.foodModel.id);
@@ -71833,7 +71590,7 @@ function useBurgerAssembly() {
               foodModel: void 0
             });
           }
-          updateObstacleInfo2(target.id || "", info);
+          updateObstacleInfo(target.id || "", info);
         }
       } else {
         foodModel = {
@@ -71843,11 +71600,11 @@ function useBurgerAssembly() {
             type: target.type
           })
         };
-        updateObstacleInfo2(otherTarget.id || "", {
+        updateObstacleInfo(otherTarget.id || "", {
           foodModel,
           position: target.position
         });
-        unregisterObstacle2(target.id, playerId);
+        unregisterObstacle(target.id, playerId);
         putOnTable = otherTarget.id;
         (_d = modelMapRef2.current) == null ? void 0 : _d.delete(target.id);
       }
@@ -71856,7 +71613,7 @@ function useBurgerAssembly() {
         leaveGrab
       };
     },
-    [modelMapRef2, unregisterObstacle2, updateObstacleInfo2]
+    [modelMapRef2, unregisterObstacle, updateObstacleInfo]
   );
   const multiNormalCreateBurger = reactExports.useCallback(
     (highlight, grab, leaveGrab, highlightedFurniture, updateHand, playerId) => {
@@ -71879,7 +71636,7 @@ function useBurgerAssembly() {
           })
         };
         putOnTable = target.id;
-        updateObstacleInfo2(target.id, {
+        updateObstacleInfo(target.id, {
           foodModel,
           position: highlight.position
         });
@@ -71891,7 +71648,7 @@ function useBurgerAssembly() {
           ...otherTarget,
           foodModel: void 0
         });
-        updateObstacleInfo2(otherTarget.id, {
+        updateObstacleInfo(otherTarget.id, {
           foodModel: void 0
         });
       } else {
@@ -71907,11 +71664,11 @@ function useBurgerAssembly() {
             type: otherTarget.type
           })
         };
-        updateObstacleInfo2(target.id, {
+        updateObstacleInfo(target.id, {
           foodModel,
           position: highlight.position
         });
-        unregisterObstacle2(otherTarget.id, playerId);
+        unregisterObstacle(otherTarget.id, playerId);
         (_c = modelMapRef2.current) == null ? void 0 : _c.set(id2, burger2);
         (_d = modelMapRef2.current) == null ? void 0 : _d.delete(otherTarget.id);
       }
@@ -71920,7 +71677,7 @@ function useBurgerAssembly() {
         leaveGrab
       };
     },
-    [grabModels, modelMapRef2, unregisterObstacle2, updateObstacleInfo2]
+    [grabModels, modelMapRef2, unregisterObstacle, updateObstacleInfo]
   );
   const plateBurgerAddMultiNormalFood = reactExports.useCallback(
     (highlight, grab, leaveGrab, highlightedFurniture, updateHand, playerId) => {
@@ -71942,7 +71699,7 @@ function useBurgerAssembly() {
             otherTarget.foodModel.type
           )
         };
-        updateObstacleInfo2(target.id, {
+        updateObstacleInfo(target.id, {
           foodModel,
           position: highlight.position
         });
@@ -71950,7 +71707,7 @@ function useBurgerAssembly() {
           ...otherTarget,
           foodModel: void 0
         });
-        updateObstacleInfo2(otherTarget.id, {
+        updateObstacleInfo(otherTarget.id, {
           foodModel: void 0
         });
         (_a2 = modelMapRef2.current) == null ? void 0 : _a2.delete(
@@ -71971,11 +71728,11 @@ function useBurgerAssembly() {
             otherTarget.foodModel.type
           )
         };
-        unregisterObstacle2(otherTarget.id, playerId);
+        unregisterObstacle(otherTarget.id, playerId);
         (_b2 = modelMapRef2.current) == null ? void 0 : _b2.delete(
           target.foodModel.id
         );
-        updateObstacleInfo2(target.id, {
+        updateObstacleInfo(target.id, {
           foodModel,
           position: highlight.position
         });
@@ -71985,7 +71742,7 @@ function useBurgerAssembly() {
         leaveGrab
       };
     },
-    [modelMapRef2, unregisterObstacle2, updateObstacleInfo2]
+    [modelMapRef2, unregisterObstacle, updateObstacleInfo]
   );
   const multiNormalFoodAddIngredient = reactExports.useCallback(
     (highlight, grab, leaveGrab, highlightedFurniture, playerId) => {
@@ -72027,12 +71784,12 @@ function useBurgerAssembly() {
           type: otherTarget.type
         })
       };
-      updateObstacleInfo2(target.id || "", {
+      updateObstacleInfo(target.id || "", {
         foodModel,
         position: highlight.position
       });
-      unregisterObstacle2(otherTarget.id, playerId);
-      unregisterObstacle2(target.foodModel.id, playerId);
+      unregisterObstacle(otherTarget.id, playerId);
+      unregisterObstacle(target.foodModel.id, playerId);
       (_b2 = modelMapRef2.current) == null ? void 0 : _b2.delete(target.foodModel.id);
       (_c = modelMapRef2.current) == null ? void 0 : _c.delete(otherTarget.id);
       return {
@@ -72040,7 +71797,7 @@ function useBurgerAssembly() {
         leaveGrab
       };
     },
-    [getNormalFoodModel, modelMapRef2, unregisterObstacle2, updateObstacleInfo2]
+    [getNormalFoodModel, modelMapRef2, unregisterObstacle, updateObstacleInfo]
   );
   const overLapDirtyPlate = reactExports.useCallback(
     (highlight, grab, highlightedFurniture, playerId) => {
@@ -72088,19 +71845,19 @@ function useBurgerAssembly() {
       );
       console.log("overLapDirtyPlate - grab.foodModel:", grab.foodModel);
       console.log("overLapDirtyPlate - append:", append);
-      updateObstacleInfo2(highlight.id || "", {
+      updateObstacleInfo(highlight.id || "", {
         foodModel: info,
         position: highlight.position
       });
       console.log("overLapDirtyPlate - highlight.foodModel after:", info);
       (_a2 = modelMapRef2.current) == null ? void 0 : _a2.delete(grab.id);
-      unregisterObstacle2(grab.id, playerId);
+      unregisterObstacle(grab.id, playerId);
       return {
         putOnTable: highlightedFurniture ? highlight.id : "",
         leaveGrab: true
       };
     },
-    [modelMapRef2, unregisterObstacle2, updateObstacleInfo2]
+    [modelMapRef2, unregisterObstacle, updateObstacleInfo]
   );
   const panAddIngredientToBurger = reactExports.useCallback(
     (target, ohterTarget, leaveGrab, highlightedFurniture, updateHand) => {
@@ -72113,7 +71870,7 @@ function useBurgerAssembly() {
             type: ohterTarget.foodModel.type
           })
         };
-        updateObstacleInfo2(ohterTarget.id, {
+        updateObstacleInfo(ohterTarget.id, {
           foodModel: void 0
         });
         (_a2 = modelMapRef2.current) == null ? void 0 : _a2.delete(
@@ -72126,7 +71883,7 @@ function useBurgerAssembly() {
           ...ohterTarget,
           foodModel: void 0
         });
-        updateObstacleInfo2(target.id || "", info);
+        updateObstacleInfo(target.id || "", info);
         return {
           putOnTable: highlightedFurniture ? target.id : "",
           leaveGrab
@@ -72139,7 +71896,7 @@ function useBurgerAssembly() {
             type: target.foodModel.type
           })
         };
-        updateObstacleInfo2(target.id, {
+        updateObstacleInfo(target.id, {
           foodModel: void 0
         });
         (_b2 = modelMapRef2.current) == null ? void 0 : _b2.delete(target.foodModel.id);
@@ -72150,14 +71907,14 @@ function useBurgerAssembly() {
           ...ohterTarget,
           foodModel
         });
-        updateObstacleInfo2(ohterTarget.id || "", info);
+        updateObstacleInfo(ohterTarget.id || "", info);
         return {
           putOnTable: highlightedFurniture ? target.id : "",
           leaveGrab
         };
       }
     },
-    [modelMapRef2, updateObstacleInfo2]
+    [modelMapRef2, updateObstacleInfo]
   );
   const assembleAndUpdateUI = reactExports.useCallback(
     (possible, {
@@ -72483,13 +72240,13 @@ function useBurgerAssembly() {
       var _a2, _b2;
       if (!realHighLight || !hand) return false;
       if (possible === "assembleWithCuttingBoard") {
-        updateObstacleInfo2(realHighLight.id, {
+        updateObstacleInfo(realHighLight.id, {
           foodModel: {
             id: hand.id,
             type: hand.type
           }
         });
-        unregisterObstacle2(hand.id, playerId);
+        unregisterObstacle(hand.id, playerId);
         return {
           putOnTable: realHighLight.id,
           leaveGrab: true,
@@ -72498,7 +72255,7 @@ function useBurgerAssembly() {
       } else {
         let id2 = "";
         if (possible === "putOnTable") {
-          updateObstacleInfo2(hand.id, {
+          updateObstacleInfo(hand.id, {
             position: [
               realHighLight.position[0],
               realHighLight.position[1] + 0.15,
@@ -72520,7 +72277,7 @@ function useBurgerAssembly() {
             realHighLight.position[2]
           ];
           normalFood.isCut = true;
-          updateObstacleInfo2(realHighLight.id, {
+          updateObstacleInfo(realHighLight.id, {
             foodModel: void 0,
             isCut: false
           });
@@ -72580,7 +72337,7 @@ function useBurgerAssembly() {
             )) == null ? void 0 : _b2.putOnTable) || "";
           }
         }
-        setGrabOnFurniture2(
+        setGrabOnFurniture(
           highlightedFurniture.id,
           realHighLight.id,
           true
@@ -72601,9 +72358,9 @@ function useBurgerAssembly() {
       plateAddMultiNormalFood,
       plateBurgerAddIngredient,
       singleFoodOnPlate,
-      unregisterObstacle2,
-      updateObstacleInfo2,
-      setGrabOnFurniture2,
+      unregisterObstacle,
+      updateObstacleInfo,
+      setGrabOnFurniture,
       grabModels
     ]
   );
@@ -72640,43 +72397,17 @@ const GrabItem = ({
   const { modelMapRef: modelMapRef2, handleIngredientsApi } = reactExports.useContext(GrabContext);
   const { stopTimer, setIngredientStatus, handleIngredients } = handleIngredientsApi;
   const { heldItem, grabItem, releaseItem, isGrab } = grabSystem;
-  const {
-    updateObstacleInfo: updateObstacleInfo2,
-    unregisterObstacle: unregisterObstacle2,
-    setGrabOnFurniture: setGrabOnFurniture2,
-    getGrabOnFurniture,
-    getObstacleInfo,
-    setDirtyPlates: setDirtyPlates2
-  } = useGrabObstacleStore((s2) => {
-    return {
-      removeGrabOnFurniture: s2.removeGrabOnFurniture,
-      updateObstacleInfo: s2.updateObstacleInfo,
-      getObstacleInfo: s2.getObstacleInfo,
-      unregisterObstacle: s2.unregisterObstacle,
-      registerObstacle: s2.registerObstacle,
-      getGrabOnFurniture: s2.getGrabOnFurniture,
-      setGrabOnFurniture: s2.setGrabOnFurniture,
-      setDirtyPlates: s2.setDirtyPlates
-    };
-  });
   const realHighLight = useRealHighlight(playerId);
-  const setScore2 = useGame((s2) => s2.setScore);
   const handPositionRef = reactExports.useRef(new Vector3());
   const groupRef = reactExports.useRef(null);
   const { cutAndUpdateUI, cookAndUpdateUI, assembleAndUpdateUI, dropHeld } = useBurgerAssembly();
   const [rotation, setRotation] = reactExports.useState([0, 0, 0]);
   const [hand, setHand] = reactExports.useState(null);
   const furniturelightIds = useHighlightId();
-  const { getFurnitureObstacleInfo } = useFurnitureObstacleStore((s2) => {
-    return {
-      getFurnitureObstacleInfo: s2.getObstacleInfo,
-      unregisterFurnitureObstacle: s2.unregisterObstacle
-    };
-  });
   const highlightedFurniture = reactExports.useMemo(() => {
     const highlightId = furniturelightIds[playerId];
     if (highlightId) {
-      return getFurnitureObstacleInfo(highlightId) || false;
+      return getObstacleInfo$1(highlightId) || false;
     }
     return false;
   }, [playerId, furniturelightIds]);
@@ -72694,7 +72425,7 @@ const GrabItem = ({
     if (heldItem == null ? void 0 : heldItem.id) {
       const obj = getObstacleInfo(heldItem.id) || null;
       setHand(obj);
-      updateObstacleInfo2(heldItem.id, {
+      updateObstacleInfo(heldItem.id, {
         visible: false
       });
       setRotation(heldItem.rotation || [0, 0, 0]);
@@ -72765,7 +72496,7 @@ const GrabItem = ({
       if (typeof highlightedFurniture !== "boolean") {
         if (highlightedFurniture.type === EFurnitureType.trash) {
           if (Object.values(EFoodType).includes(hand.type)) {
-            unregisterObstacle2(hand.id, playerId);
+            unregisterObstacle(hand.id, playerId);
             (_a2 = modelMapRef2.current) == null ? void 0 : _a2.delete(hand.id);
             (_c = modelMapRef2.current) == null ? void 0 : _c.delete(((_b2 = hand.foodModel) == null ? void 0 : _b2.id) || "");
             releaseItem();
@@ -72775,7 +72506,7 @@ const GrabItem = ({
             const info = {
               foodModel: void 0
             };
-            updateObstacleInfo2(hand.id, info);
+            updateObstacleInfo(hand.id, info);
             (_d = modelMapRef2.current) == null ? void 0 : _d.delete(hand.foodModel.id);
             setHand({
               ...hand,
@@ -72793,11 +72524,11 @@ const GrabItem = ({
           return;
         } else if (highlightedFurniture.type === EFurnitureType.serveDishes) {
           if (hand.type === EGrabType.plate && hand.foodModel && isMultiFoodModelType(hand.foodModel)) {
-            unregisterObstacle2(hand.id, playerId);
+            unregisterObstacle(hand.id, playerId);
             (_f = modelMapRef2.current) == null ? void 0 : _f.delete(hand.id || "");
             (_h = modelMapRef2.current) == null ? void 0 : _h.delete(((_g = hand.foodModel) == null ? void 0 : _g.id) || "");
             const arr = hand.foodModel.type.map((item) => item.type);
-            setScore2(arr);
+            setScore(arr);
             setHand(null);
             releaseItem();
           } else {
@@ -72810,11 +72541,11 @@ const GrabItem = ({
               if (isMultiFoodModelType(hand.foodModel)) {
                 arr.concat(hand.foodModel.type.map((item) => item.id));
               }
-              setDirtyPlates2(arr);
+              setDirtyPlates(arr);
             } else {
-              setDirtyPlates2([hand.id]);
+              setDirtyPlates([hand.id]);
             }
-            unregisterObstacle2(hand.id, playerId);
+            unregisterObstacle(hand.id, playerId);
             (_i = modelMapRef2.current) == null ? void 0 : _i.delete(hand.id || "");
             setHand(null);
             releaseItem();
@@ -72832,7 +72563,7 @@ const GrabItem = ({
           const did = assembleAndUpdateUI(result, UIProps);
           if (did) {
             if (did.putOnTable) {
-              setGrabOnFurniture2(
+              setGrabOnFurniture(
                 highlightedFurniture.id,
                 did.putOnTable
               );
@@ -72849,7 +72580,7 @@ const GrabItem = ({
             const did = cookAndUpdateUI(result, UIProps);
             if (did) {
               if (did.putOnTable) {
-                setGrabOnFurniture2(
+                setGrabOnFurniture(
                   highlightedFurniture.id,
                   did.putOnTable
                 );
@@ -72878,7 +72609,7 @@ const GrabItem = ({
             );
             stopTimer(realHighLight.id);
             if (did.putOnTable) {
-              setGrabOnFurniture2(
+              setGrabOnFurniture(
                 highlightedFurniture.id,
                 did.putOnTable
               );
@@ -72895,7 +72626,7 @@ const GrabItem = ({
         if (!getGrabOnFurniture(highlightedFurniture.id)) {
           dropHeld(hand.id, "table", putDownTable);
           releaseItem();
-          setGrabOnFurniture2(highlightedFurniture.id, hand.id);
+          setGrabOnFurniture(highlightedFurniture.id, hand.id);
         }
         return;
       } else {
@@ -72962,7 +72693,7 @@ const getOffset = (foodType2, posY) => {
   return [0, posY || 0, offsetZ];
 };
 function useGrabSystem(playerId) {
-  const [heldItem, setHeldItem2] = reactExports.useState(null);
+  const [heldItem, setHeldItem$12] = reactExports.useState(null);
   const { grabModels } = reactExports.useContext(ModelResourceContext);
   const furniturelightId = useHighlightId();
   const { modelMapRef: modelMapRef2, handleIngredientsApi } = reactExports.useContext(GrabContext);
@@ -72977,26 +72708,9 @@ function useGrabSystem(playerId) {
   } = handleIngredientsApi;
   const [subscribeKeys] = useKeyboardControls();
   const cleanPlates = useGetCleanPlates();
-  const { getFurnitureObstacleInfo } = useFurnitureObstacleStore((s2) => {
-    return {
-      getFurnitureObstacleInfo: s2.getObstacleInfo
-    };
-  });
-  const setObstacleHeldItem = useGrabObstacleStore((s2) => s2.setHeldItem);
   const pendingGrabIds = useGrabPendingIds();
-  const setGrabOnFurniture2 = useGrabObstacleStore((s2) => s2.setGrabOnFurniture);
-  const setPendingGrabId2 = useGrabObstacleStore((s2) => s2.setPendingGrabId);
-  const updateObstacleInfo2 = useGrabObstacleStore((s2) => s2.updateObstacleInfo);
   const grabOnFurniture = useGrabOnFurniture();
   const realHighlight = useRealHighlight(playerId);
-  const getGrabOnFurniture = useGrabObstacleStore((s2) => s2.getGrabOnFurniture);
-  const setOpenFoodTable2 = useFurnitureObstacleStore((s2) => s2.setOpenFoodTable);
-  const registerObstacle2 = useGrabObstacleStore((s2) => s2.registerObstacle);
-  const getObstacleInfo = useGrabObstacleStore((s2) => s2.getObstacleInfo);
-  const removeGrabOnFurniture2 = useGrabObstacleStore(
-    (s2) => s2.removeGrabOnFurniture
-  );
-  const removeCleanPlate2 = useGrabObstacleStore((s2) => s2.removeCleanPlate);
   const replaceModelRef = reactExports.useRef(/* @__PURE__ */ new Map());
   const completeUnsubRef = reactExports.useRef(/* @__PURE__ */ new Map());
   reactExports.useEffect(() => {
@@ -73038,7 +72752,7 @@ function useGrabSystem(playerId) {
           (_a2 = modelMapRef2.current) == null ? void 0 : _a2.set(newId, model);
           (_b2 = modelMapRef2.current) == null ? void 0 : _b2.delete(foodModel.id);
           info.foodModel = { id: newId, type: foodModel.type };
-          updateObstacleInfo2(obstacle.id, info);
+          updateObstacleInfo(obstacle.id, info);
           replaceModelRef.current.set(obstacle.id, type);
         }
       });
@@ -73079,14 +72793,14 @@ function useGrabSystem(playerId) {
         offset: getOffset(food.type, ((_a2 = food.grabbingPosition) == null ? void 0 : _a2.inHand) || 0),
         rotation: customRotation
       };
-      setObstacleHeldItem(playerId, obj.id);
-      setHeldItem2(obj);
+      setHeldItem(playerId, obj.id);
+      setHeldItem$12(obj);
     },
     [playerId]
   );
   const releaseItem = reactExports.useCallback(() => {
-    setObstacleHeldItem(playerId, "");
-    setHeldItem2(null);
+    setHeldItem(playerId, "");
+    setHeldItem$12(null);
   }, [playerId]);
   const keyNames = reactExports.useMemo(() => {
     const keyPrefix = playerId === "firstPlayer" ? "firstP" : "secondP";
@@ -73139,10 +72853,10 @@ function useGrabSystem(playerId) {
     if (!playerId) return false;
     const highlightId = furniturelightId[playerId];
     if (highlightId) {
-      return getFurnitureObstacleInfo(highlightId) || false;
+      return getObstacleInfo$1(highlightId) || false;
     }
     return false;
-  }, [furniturelightId, getFurnitureObstacleInfo]);
+  }, [furniturelightId, getObstacleInfo$1]);
   reactExports.useEffect(() => {
     var _a2, _b2, _c, _d;
     if (!heldItem) {
@@ -73150,7 +72864,7 @@ function useGrabSystem(playerId) {
       if (playerHighlightedFurniture) {
         if (playerHighlightedFurniture.type === EFurnitureType.foodTable && !getGrabOnFurniture(playerHighlightedFurniture.id)) {
           const foodType2 = playerHighlightedFurniture.foodType;
-          setOpenFoodTable2(playerHighlightedFurniture.id);
+          setOpenFoodTable(playerHighlightedFurniture.id);
           const newFood = createNewFood({
             foodType: foodType2,
             model: grabModels[foodType2],
@@ -73158,8 +72872,8 @@ function useGrabSystem(playerId) {
             modelMapRef: modelMapRef2,
             area: "hand"
           });
-          setPendingGrabId2(playerId, newFood.id);
-          registerObstacle2(newFood.id, {
+          setPendingGrabId(playerId, newFood.id);
+          registerObstacle(newFood.id, {
             ...newFood,
             area: "hand",
             visible: false
@@ -73173,13 +72887,13 @@ function useGrabSystem(playerId) {
             false,
             modelMapRef2
           );
-          setPendingGrabId2(playerId, newFood.id);
-          registerObstacle2(newFood.id, {
+          setPendingGrabId(playerId, newFood.id);
+          registerObstacle(newFood.id, {
             ...newFood,
             area: "hand",
             visible: false
           });
-          removeCleanPlate2();
+          removeCleanPlate();
           return;
         }
       }
@@ -73210,15 +72924,15 @@ function useGrabSystem(playerId) {
           modelMapRef: modelMapRef2,
           area: "hand"
         });
-        registerObstacle2(newFood.id, {
+        registerObstacle(newFood.id, {
           ...newFood,
           visible: false,
           isCut: handleIngredient ? handleIngredient.status === 5 : void 0,
           position: grab.position
         });
-        setPendingGrabId2(playerId, newFood.id);
+        setPendingGrabId(playerId, newFood.id);
         setIngredientStatus(grab.id, false);
-        updateObstacleInfo2(grab.id, { foodModel: void 0, isCut: false });
+        updateObstacleInfo(grab.id, { foodModel: void 0, isCut: false });
         (_a2 = modelMapRef2.current) == null ? void 0 : _a2.delete(grab.foodModel.id);
         return;
       } else if (grab.type == EGrabType.pan) {
@@ -73233,17 +72947,17 @@ function useGrabSystem(playerId) {
         clone: true
       });
       if (grab) {
-        updateObstacleInfo2(grab.id, {
+        updateObstacleInfo(grab.id, {
           area: "hand",
           visible: true
         });
       }
       const temp = playerHighlightedFurniture && getGrabOnFurniture(playerHighlightedFurniture.id, true);
       if (temp) {
-        setGrabOnFurniture2(playerHighlightedFurniture.id, temp);
-        removeGrabOnFurniture2(playerHighlightedFurniture.id, true);
+        setGrabOnFurniture(playerHighlightedFurniture.id, temp);
+        removeGrabOnFurniture(playerHighlightedFurniture.id, true);
       } else {
-        playerHighlightedFurniture ? removeGrabOnFurniture2(playerHighlightedFurniture.id) : null;
+        playerHighlightedFurniture ? removeGrabOnFurniture(playerHighlightedFurniture.id) : null;
       }
     }
   }, [isGrab]);
@@ -73267,16 +72981,7 @@ function useProgressBar(playerId) {
   });
   const { handleIngredients, toggleTimer } = handleIngredientsApi;
   const dirtyPlateArr = useGetDirtyPlates();
-  const getGrabOnFurniture = useGrabObstacleStore((s2) => s2.getGrabOnFurniture);
   const [subscribeKeys] = useKeyboardControls();
-  const getObstacleInfo = useGrabObstacleStore((s2) => s2.getObstacleInfo);
-  const { getFurnitureObstacleInfo } = useFurnitureObstacleStore((s2) => {
-    return {
-      getFurnitureObstacleInfo: s2.getObstacleInfo
-      // registryFurniture: s.registryFurniture,
-      // furniturelightId: s.highlightId,
-    };
-  });
   const keyNames = reactExports.useMemo(() => {
     const keyPrefix = playerId === "firstPlayer" ? "firstP" : "secondP";
     return {
@@ -73308,10 +73013,10 @@ function useProgressBar(playerId) {
   const highlightedFurniture = reactExports.useMemo(() => {
     const highlightId = furniturelightId[playerId];
     if (highlightId) {
-      return getFurnitureObstacleInfo(highlightId) || false;
+      return getObstacleInfo$1(highlightId) || false;
     }
     return false;
-  }, [furniturelightId, getFurnitureObstacleInfo, playerId]);
+  }, [furniturelightId, getObstacleInfo$1, playerId]);
   const panCookingId = reactExports.useMemo(() => {
     var _a2;
     if (!highlightedFurniture) return false;
@@ -73364,17 +73069,7 @@ const Player = reactExports.forwardRef(
     const grabSystem = useGrabSystem(playerId);
     useProgressBar(playerId);
     const { heldItem } = grabSystem;
-    const { setRealHighlight: setRealHighlight2, getObstacleInfo, getGrabOnFurniture } = useGrabObstacleStore((s2) => {
-      return {
-        getObstacleInfo: s2.getObstacleInfo,
-        getGrabOnFurniture: s2.getGrabOnFurniture,
-        setRealHighlight: s2.setRealHighlight
-      };
-    });
     const realHighLight = useRealHighlight(playerId);
-    const { setHighlightId: setHighlightId2 } = useFurnitureObstacleStore((s2) => ({
-      setHighlightId: s2.setHighlightId
-    }));
     const registryFurniture = useRegistryFurniture();
     const highlightIds = useHighlightId();
     const highlightId = highlightIds[playerId];
@@ -73417,19 +73112,19 @@ const Player = reactExports.forwardRef(
     reactExports.useEffect(() => {
       if (!highlightId) {
         if (!highlightedGrabIds) {
-          setRealHighlight2(playerId, false);
+          setRealHighlight(playerId, false);
           return;
         }
         const newGrab = getGrabNearest(heldItem == null ? void 0 : heldItem.id);
-        setRealHighlight2(playerId, newGrab ? newGrab.id : false);
+        setRealHighlight(playerId, newGrab ? newGrab.id : false);
       } else {
         const tableId = getGrabOnFurniture(highlightId);
         const grab = getObstacleInfo(tableId || "");
         if (grab) {
-          setRealHighlight2(playerId, grab.id);
+          setRealHighlight(playerId, grab.id);
           return;
         } else {
-          setRealHighlight2(playerId, false);
+          setRealHighlight(playerId, false);
         }
       }
     }, [
@@ -73442,11 +73137,11 @@ const Player = reactExports.forwardRef(
     ]);
     reactExports.useEffect(() => {
       if (furnitureNearList.length === 0) {
-        setHighlightId2(playerId, false);
+        setHighlightId(playerId, false);
         return;
       }
       const newFurniture = getFurnitureNearest();
-      setHighlightId2(playerId, newFurniture ? newFurniture.id : false);
+      setHighlightId(playerId, newFurniture ? newFurniture.id : false);
     }, [playerId, getFurnitureNearest, furnitureNearList.length]);
     const capsuleHalf = capsuleSize[0] + capsuleSize[1] / 2;
     reactExports.useRef(
