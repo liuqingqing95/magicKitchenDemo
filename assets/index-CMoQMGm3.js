@@ -65398,17 +65398,17 @@ const Hamberger = ({
           count = 2;
         }
       }
-      const visible2 = [];
+      const visibleArr = [];
       for (let i2 = 0; i2 < 6; i2++) {
         if (i2 < count) {
-          visible2.push(`dirtyPlate${i2 + 1}`);
-          visible2.push(`dirtyPlate${i2 + 1}_1`);
+          visibleArr.push(`dirtyPlate${i2 + 1}`);
+          visibleArr.push(`dirtyPlate${i2 + 1}_1`);
         }
       }
       model.traverse((child) => {
         if (child instanceof Mesh) {
           console.log("child name:", child.name, "count:", count);
-          if (visible2.includes(child.name)) {
+          if (visibleArr.includes(child.name)) {
             child.visible = true;
           } else {
             child.visible = false;
@@ -70487,4 +70487,4 @@ const root = client.createRoot(document.querySelector("#root"));
 root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-BBPjqIPy.js.map
+//# sourceMappingURL=index-CMoQMGm3.js.map
