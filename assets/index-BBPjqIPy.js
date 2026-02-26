@@ -51837,7 +51837,8 @@ function addPrimitiveAttributes(geometry, primitiveDef, parser) {
 const createLoader = () => {
   const loader = new GLTFLoader();
   const dracoLoader = new DRACOLoader();
-  dracoLoader.setDecoderPath("/libs/draco/");
+  const decoderPath = `${"./"}libs/draco/`;
+  dracoLoader.setDecoderPath(decoderPath);
   dracoLoader.preload();
   loader.setDRACOLoader(dracoLoader);
   return loader;
@@ -70486,4 +70487,4 @@ const root = client.createRoot(document.querySelector("#root"));
 root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-Glj6Uku5.js.map
+//# sourceMappingURL=index-BBPjqIPy.js.map
