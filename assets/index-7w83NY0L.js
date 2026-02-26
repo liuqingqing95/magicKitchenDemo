@@ -34464,7 +34464,7 @@ const Cache = {
     this.files = {};
   }
 };
-let LoadingManager$1 = class LoadingManager {
+class LoadingManager {
   constructor(onLoad, onProgress, onError) {
     const scope = this;
     let isLoading = false;
@@ -34535,8 +34535,8 @@ let LoadingManager$1 = class LoadingManager {
       return null;
     };
   }
-};
-const DefaultLoadingManager = /* @__PURE__ */ new LoadingManager$1();
+}
+const DefaultLoadingManager = /* @__PURE__ */ new LoadingManager();
 class Loader {
   constructor(manager) {
     this.manager = manager !== void 0 ? manager : DefaultLoadingManager;
@@ -36067,7 +36067,7 @@ class ObjectLoader extends Loader {
       }
     }
     if (json !== void 0 && json.length > 0) {
-      const manager = new LoadingManager$1(onLoad);
+      const manager = new LoadingManager(onLoad);
       loader = new ImageLoader(manager);
       loader.setCrossOrigin(this.crossOrigin);
       for (let i2 = 0, il2 = json.length; i2 < il2; i2++) {
@@ -40038,7 +40038,7 @@ const THREE = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   LinearTransfer,
   Loader,
   LoaderUtils,
-  LoadingManager: LoadingManager$1,
+  LoadingManager,
   LoopOnce,
   LoopPingPong,
   LoopRepeat,
@@ -51964,8 +51964,18 @@ const ModelResourceProvider = ({
         const priorityEntries = entries.filter(
           ([type]) => PRIORITY_TYPES.includes(type)
         );
+        const GrabTypes = [
+          "plate",
+          "fireExtinguisher",
+          "pan",
+          "cuttingBoard",
+          "dirtyPlate"
+        ];
+        const grabEntries = entries.filter(
+          ([type]) => GrabTypes.includes(type)
+        );
         const restEntries = entries.filter(
-          ([type]) => !PRIORITY_TYPES.includes(type)
+          ([type]) => !PRIORITY_TYPES.includes(type) && !GrabTypes.includes(type)
         );
         if (mounted) {
           setTotalCount(10 + 6);
@@ -52000,6 +52010,9 @@ const ModelResourceProvider = ({
         };
         if (priorityEntries.length > 0) {
           await Promise.all(priorityEntries.map((e2) => loadOne(e2)));
+        }
+        if (grabEntries.length > 0) {
+          await Promise.all(grabEntries.map((e2) => loadOne(e2)));
         }
         if (restEntries.length > 0) {
           await Promise.all(restEntries.map((e2) => loadOne(e2)));
@@ -70393,73 +70406,6 @@ const CanvasWrapper2 = ({ children }) => {
     }
   );
 };
-function LoadingManager2() {
-  const ctx = reactExports.useContext(ModelResourceContext);
-  if (!ctx) return null;
-  const { loading: loading2, loadedCount, totalCount, progress: progress2 } = ctx;
-  if (totalCount === loadedCount) return null;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
-    {
-      style: {
-        position: "absolute",
-        inset: 0,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        pointerEvents: "none"
-      },
-      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          style: {
-            width: 320,
-            padding: 12,
-            background: "rgba(0,0,0,0.6)",
-            color: "white",
-            borderRadius: 8,
-            textAlign: "center"
-          },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 8 }, children: [
-              "模型加载中… ",
-              progress2,
-              "%"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                style: {
-                  height: 8,
-                  background: "rgba(255,255,255,0.12)",
-                  borderRadius: 4
-                },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "div",
-                  {
-                    style: {
-                      width: `${progress2}%`,
-                      height: "100%",
-                      background: "#4caf50",
-                      borderRadius: 4,
-                      transition: "width 200ms linear"
-                    }
-                  }
-                )
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: 8, fontSize: 12, opacity: 0.9 }, children: [
-              loadedCount,
-              "/",
-              totalCount,
-              " 已加载"
-            ] })
-          ]
-        }
-      )
-    }
-  );
-}
 function App() {
   reactExports.useEffect(() => {
     const handleKeyDown = (e2) => {
@@ -70471,13 +70417,10 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(GrabContextProvider, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ModelResourceProvider, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(CanvasWrapper2, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Experience, {}),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ViewControls, {})
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingManager2, {})
-    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ModelResourceProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CanvasWrapper2, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Experience, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ViewControls, {})
+    ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(MenuGoals, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Score, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(TimeRemaining, {})
@@ -70487,4 +70430,4 @@ const root = client.createRoot(document.querySelector("#root"));
 root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-CMoQMGm3.js.map
+//# sourceMappingURL=index-7w83NY0L.js.map
