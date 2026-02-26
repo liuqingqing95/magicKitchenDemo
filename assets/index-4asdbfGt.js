@@ -55187,7 +55187,9 @@ const ModelResourceContext = React$1.createContext({
   totalCount: 0,
   progress: 0,
   textures: {},
-  modelAnimations: {}
+  modelAnimations: {},
+  notifyReady: () => {
+  }
 });
 const ModelResourceProvider = ({
   children
@@ -55197,6 +55199,7 @@ const ModelResourceProvider = ({
   const [loadedCount, setLoadedCount] = reactExports.useState(0);
   const [totalCount, setTotalCount] = reactExports.useState(0);
   const [modelAnimations, setModelAnimations] = reactExports.useState({});
+  const [modelsLoadedDone, setModelsLoadedDone] = reactExports.useState(false);
   const loader = reactExports.useMemo(() => new GLTFLoader2(), []);
   reactExports.useEffect(() => {
     const entries = [];
@@ -55235,7 +55238,7 @@ const ModelResourceProvider = ({
           ([type]) => !PRIORITY_TYPES.includes(type)
         );
         if (mounted) {
-          setTotalCount(entries.length);
+          setTotalCount(10 + 6);
           setLoadedCount(0);
           setLoading(true);
         }
@@ -55262,9 +55265,6 @@ const ModelResourceProvider = ({
               [type]: gltf.animations
             }));
           }
-          if (mounted) {
-            setLoadedCount((n2) => n2 + 1);
-          }
         };
         if (priorityEntries.length > 0) {
           await Promise.all(priorityEntries.map((e2) => loadOne(e2)));
@@ -55282,6 +55282,7 @@ const ModelResourceProvider = ({
           Object.entries(grabModels).forEach(([key]) => {
             console.log(`- ${key}`);
           });
+          setModelsLoadedDone(true);
           setLoading(false);
         }
       }
@@ -55316,9 +55317,26 @@ const ModelResourceProvider = ({
       totalCount,
       progress: totalCount > 0 ? Math.round(loadedCount / totalCount * 100) : 0,
       textures,
-      modelAnimations
+      modelAnimations,
+      notifyReady: (count = 1) => {
+        setLoadedCount((n2) => {
+          const next = n2 + (count || 1);
+          if (modelsLoadedDone && totalCount > 0 && next >= totalCount) {
+            setLoading(false);
+          }
+          return next;
+        });
+      }
     }),
-    [grabModels, loading2, loadedCount, totalCount, textures, modelAnimations]
+    [
+      grabModels,
+      loading2,
+      loadedCount,
+      totalCount,
+      textures,
+      modelAnimations,
+      modelsLoadedDone
+    ]
   );
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ModelResourceContext.Provider, { value, children });
 };
@@ -69522,6 +69540,9 @@ function GrabbaleWrapper({
   const registryFurniture = useRegistryFurniture();
   const pendingGrab = useGrabPendingIds();
   const furnitureObstacles = useObstaclesMap();
+  const [prevGrabModelTypes, setPrevGrabModelTypes] = React$1.useState(
+    []
+  );
   const furniturelightId = useHighlightId();
   reactExports.useEffect(() => {
     return () => {
@@ -69578,15 +69599,28 @@ function GrabbaleWrapper({
       status: false
     });
   };
-  const { grabModels, loading: loading2 } = reactExports.useContext(ModelResourceContext);
+  const { grabModels, loading: loading2, notifyReady } = reactExports.useContext(ModelResourceContext);
   const modelNoKnifeCache = reactExports.useRef(/* @__PURE__ */ new Map());
   reactExports.useEffect(() => {
     if (loading2) return;
     if (!registryFurniture) return;
-    if (Object.keys(grabModels).length === 0 || obstacles.size > 0) return;
+    const grabArr = Object.keys(grabModels);
+    if (grabArr.length === 0) return;
+    const diff = lodashExports.difference(grabArr, prevGrabModelTypes);
+    if (diff.length === 0) {
+      return;
+    }
+    const grabTypes = lodashExports.uniq(
+      GRAB_ARR.filter((item) => item.visible !== false).map(
+        (item) => item.type
+      )
+    );
+    const createTypes = new Set(lodashExports.intersection(grabTypes, diff));
+    notifyReady == null ? void 0 : notifyReady(createTypes.size || 0);
     GRAB_ARR.forEach((item) => {
       var _a2;
       if (item.visible === false) return;
+      if (!createTypes.has(item.type)) return;
       const model = grabModels[item.type] ?? new Group();
       const food = createFoodItem(item, model, true, modelMapRef2);
       if (item.type === EGrabType.cuttingBoard) {
@@ -69609,7 +69643,8 @@ function GrabbaleWrapper({
       }
       registerObstacle(food.id, { ...food });
     });
-  }, [loading2, registryFurniture]);
+    setPrevGrabModelTypes(grabArr);
+  }, [Object.keys(grabModels).length, loading2, registryFurniture]);
   reactExports.useEffect(() => {
     const lightFurni = highlightedFurnitureRef.current;
     if (lightFurni) {
@@ -70191,7 +70226,7 @@ const Floor = ({ model }) => {
 const MemoizedFloor = Floor;
 const FURNITURE_TYPES = Object.values(EFurnitureType).filter((item) => item !== EFurnitureType.foodTable).concat(Object.values(FoodTableName));
 function Level({ updateFurnitureHandle }) {
-  const { grabModels, modelAnimations } = reactExports.useContext(ModelResourceContext);
+  const { grabModels, modelAnimations, notifyReady } = reactExports.useContext(ModelResourceContext);
   const { toolPosRef: toolPosRef2 } = reactExports.useContext(GrabContext);
   const [prevModelTypes, setPrevModelTypes] = React$1.useState([]);
   const [preveObstacleKeys, setPreveObstacleKeys] = React$1.useState(
@@ -70252,6 +70287,7 @@ function Level({ updateFurnitureHandle }) {
         if (FURNITURE_TYPES.includes(type)) {
           if (!grabModels[type]) return;
           models[type] = grabModels[type];
+          notifyReady == null ? void 0 : notifyReady(1);
         }
       });
       if (Object.keys(models).length === 0) return;
@@ -73629,7 +73665,7 @@ function LoadingManager2() {
   const ctx = reactExports.useContext(ModelResourceContext);
   if (!ctx) return null;
   const { loading: loading2, loadedCount, totalCount, progress: progress2 } = ctx;
-  if (!loading2) return null;
+  if (totalCount === loadedCount) return null;
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
@@ -73703,10 +73739,13 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(GrabContextProvider, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ModelResourceProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingManager2, {}), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CanvasWrapper2, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Experience, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ViewControls, {})
-    ] }) }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ModelResourceProvider, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(CanvasWrapper2, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Experience, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ViewControls, {})
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingManager2, {})
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(MenuGoals, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Score, {}),
     /* @__PURE__ */ jsxRuntimeExports.jsx(TimeRemaining, {})
@@ -73716,4 +73755,4 @@ const root = client.createRoot(document.querySelector("#root"));
 root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-z904-ggj.js.map
+//# sourceMappingURL=index-4asdbfGt.js.map
