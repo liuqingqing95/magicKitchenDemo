@@ -51834,21 +51834,34 @@ function addPrimitiveAttributes(geometry, primitiveDef, parser) {
     return primitiveDef.targets !== void 0 ? addMorphTargets(geometry, primitiveDef.targets, parser) : geometry;
   });
 }
-const createLoader = () => {
+let _cachedLoader = null;
+let _initPromise = null;
+const initLoader = async () => {
+  if (_cachedLoader) return _cachedLoader;
   const decoderPath = `${"./"}libs/draco/`;
   const loader = new GLTFLoader();
   const dracoLoader = new DRACOLoader();
   dracoLoader.setDecoderPath(decoderPath);
   dracoLoader.preload();
   loader.setDRACOLoader(dracoLoader);
-  __vitePreload(() => import(`${"./"}libs/meshopt_decoder.module.js`), true ? [] : void 0, import.meta.url).then(
-    (module) => {
-      loader.setMeshoptDecoder(module.default || module);
-    }
-  );
+  try {
+    const module = await __vitePreload(() => import(`${"./"}libs/meshopt_decoder.module.js`), true ? [] : void 0, import.meta.url);
+    const { MeshoptDecoder } = module.default || module;
+    MeshoptDecoder.ready.then(() => {
+      loader.setMeshoptDecoder(MeshoptDecoder);
+    });
+  } catch (error2) {
+    console.error("Failed to load MeshoptDecoder:", error2);
+  }
+  _cachedLoader = loader;
   return loader;
 };
-const modelLoader = createLoader();
+const getLoader = () => {
+  if (!_initPromise) {
+    _initPromise = initLoader();
+  }
+  return _initPromise;
+};
 const MODEL_PATHS = {
   graveyard: {
     // character: "/kenney_graveyard-kit_5.0/character-keeper.glb",
@@ -51918,8 +51931,8 @@ const TEXTURE_URLS = urls.map((k2) => `./2D/${k2}.png`);
 const ModelResourceContext = React$1.createContext({
   grabModels: {},
   loading: true,
-  loadedCount: 0,
-  totalCount: 0,
+  loadedCount: [],
+  totalCount: [],
   progress: 0,
   textures: {},
   modelAnimations: {},
@@ -51931,11 +51944,10 @@ const ModelResourceProvider = ({
 }) => {
   const [grabModels, setGrabModels] = reactExports.useState({});
   const [loading2, setLoading] = reactExports.useState(true);
-  const [loadedCount, setLoadedCount] = reactExports.useState(0);
-  const [totalCount, setTotalCount] = reactExports.useState(0);
+  const [loadedCount, setLoadedCount] = reactExports.useState([]);
+  const [totalCount, setTotalCount] = reactExports.useState([]);
   const [modelAnimations, setModelAnimations] = reactExports.useState({});
   const [modelsLoadedDone, setModelsLoadedDone] = reactExports.useState(false);
-  const loader = reactExports.useMemo(() => modelLoader, []);
   reactExports.useEffect(() => {
     const entries = [];
     const totalStartTime = performance.now();
@@ -51946,25 +51958,30 @@ const ModelResourceProvider = ({
       }
     }
     console.log(`Starting to load ${entries.length} models...`);
+    let loaderInstance = null;
     let mounted = true;
     (async () => {
       try {
+        loaderInstance = await getLoader();
         const PRIORITY_TYPES = [
           "floor",
           "baseTable",
+          "breadTable",
+          "tomatoTable",
+          "meatPattyTable",
+          "cheeseTable",
+          "player",
+          "player2",
+          // "foodTable",
           "gasStove",
-          // "breadTable",
-          // "tomatoTable",
-          // "meatPattyTable",
-          // "cheeseTable",
+          // "player",
           "drawerTable",
           "trash",
-          "cuttingBoard",
+          // "cuttingBoard",
           "serveDishes",
-          "stockpot",
-          "washSink",
-          "pan",
-          "plate"
+          // "stockpot",
+          "washSink"
+          // "pan",
         ];
         const priorityEntries = entries.filter(
           ([type]) => PRIORITY_TYPES.includes(type)
@@ -51983,14 +52000,15 @@ const ModelResourceProvider = ({
           ([type]) => !PRIORITY_TYPES.includes(type) && !GrabTypes.includes(type)
         );
         if (mounted) {
-          setTotalCount(PRIORITY_TYPES.length + GrabTypes.length);
-          setLoadedCount(0);
+          setTotalCount([...PRIORITY_TYPES, ...GrabTypes]);
+          setLoadedCount([]);
           setLoading(true);
         }
         const loadOne = async ([type, path]) => {
           const startTime = performance.now();
           const gltf = await new Promise((resolve2, reject) => {
-            loader.load(
+            if (!loaderInstance) return;
+            loaderInstance.load(
               path,
               (g2) => resolve2(g2),
               void 0,
@@ -52013,14 +52031,14 @@ const ModelResourceProvider = ({
             }));
           }
         };
-        if (priorityEntries.length > 0) {
-          await Promise.all(priorityEntries.map((e2) => loadOne(e2)));
+        for (const entry of priorityEntries) {
+          await loadOne(entry);
         }
-        if (grabEntries.length > 0) {
-          await Promise.all(grabEntries.map((e2) => loadOne(e2)));
+        for (const entry of grabEntries) {
+          await loadOne(entry);
         }
-        if (restEntries.length > 0) {
-          await Promise.all(restEntries.map((e2) => loadOne(e2)));
+        for (const entry of restEntries) {
+          await loadOne(entry);
         }
       } catch (e2) {
         console.error("ModelResourceProvider load error:", e2);
@@ -52040,7 +52058,7 @@ const ModelResourceProvider = ({
     return () => {
       mounted = false;
     };
-  }, [loader]);
+  }, []);
   const loadedTextures = useLoader(
     TextureLoader,
     TEXTURE_URLS
@@ -52065,13 +52083,17 @@ const ModelResourceProvider = ({
       loading: loading2,
       loadedCount,
       totalCount,
-      progress: totalCount > 0 ? Math.min(Math.round(loadedCount / totalCount * 100), 100) : 0,
+      progress: totalCount.length > 0 ? Math.min(
+        Math.round(loadedCount.length / totalCount.length * 100),
+        100
+      ) : 0,
       textures,
       modelAnimations,
-      notifyReady: (count = 1) => {
+      notifyReady: (type) => {
+        if (!totalCount.includes(type)) return;
         setLoadedCount((n2) => {
-          const next = n2 + (count || 1);
-          if (modelsLoadedDone && totalCount > 0 && next >= totalCount) {
+          const next = [...n2, type];
+          if (modelsLoadedDone && totalCount.length > 0 && next.length >= totalCount.length) {
             setLoading(false);
           }
           return next;
@@ -66358,9 +66380,11 @@ function GrabbaleWrapper({
   };
   const { grabModels, loading: loading2, notifyReady } = reactExports.useContext(ModelResourceContext);
   const modelNoKnifeCache = reactExports.useRef(/* @__PURE__ */ new Map());
+  const reqireRenderRef = reactExports.useRef(/* @__PURE__ */ new Map());
+  const [prevRenderIds, setPrevRenderIds] = React$1.useState([]);
+  const grabModelIds = reactExports.useMemo(() => Object.keys(grabModels), [grabModels]);
   reactExports.useEffect(() => {
-    if (loading2) return;
-    if (!registryFurniture) return;
+    console.log("Grab models loaded:", grabModelIds);
     const grabArr = Object.keys(grabModels);
     if (grabArr.length === 0) return;
     const diff = lodashExports.difference(grabArr, prevGrabModelTypes);
@@ -66373,13 +66397,19 @@ function GrabbaleWrapper({
       )
     );
     const createTypes = new Set(lodashExports.intersection(grabTypes, diff));
-    notifyReady == null ? void 0 : notifyReady(createTypes.size || 0);
+    console.log(createTypes, "createTypes");
     GRAB_ARR.forEach((item) => {
       var _a2;
       if (item.visible === false) return;
       if (!createTypes.has(item.type)) return;
       const model = grabModels[item.type] ?? new Group();
       const food = createFoodItem(item, model, true, modelMapRef2);
+      const arr = reqireRenderRef.current.get(item.type);
+      if (arr) {
+        reqireRenderRef.current.set(item.type, [...arr, food.id]);
+      } else {
+        reqireRenderRef.current.set(item.type, [food.id]);
+      }
       if (item.type === EGrabType.cuttingBoard) {
         (_a2 = toolPosRef2.current) == null ? void 0 : _a2.set(food.id, [item.position[0], item.position[2]]);
       }
@@ -66401,7 +66431,7 @@ function GrabbaleWrapper({
       registerObstacle(food.id, { ...food });
     });
     setPrevGrabModelTypes(grabArr);
-  }, [Object.keys(grabModels).length, loading2, registryFurniture]);
+  }, [grabModelIds]);
   reactExports.useEffect(() => {
     const lightFurni = highlightedFurnitureRef.current;
     if (lightFurni) {
@@ -66437,6 +66467,25 @@ function GrabbaleWrapper({
       updateGrabHandle == null ? void 0 : updateGrabHandle(arr);
     }
   }, [obstacles.size, mountHandlers.current.size, updateGrabHandle]);
+  reactExports.useEffect(() => {
+    const arr = Array.from(mountHandlers.current.keys());
+    const diff = lodashExports.difference(arr, prevRenderIds);
+    diff.forEach((id2) => {
+      const type = id2.split("_")[1];
+      const renderKeys = reqireRenderRef.current.get(type) || [];
+      if (renderKeys.length > 1) {
+        reqireRenderRef.current.set(
+          type,
+          renderKeys.filter((key) => key !== id2)
+        );
+      } else {
+        reqireRenderRef.current.set(type, []);
+        console.log(" obstacles updated:", type);
+        notifyReady(type);
+      }
+    });
+    setPrevRenderIds(arr);
+  }, [mountHandlers.current.size]);
   reactExports.useEffect(() => {
     console.log("grabOnFurniture changed, current state:", grabOnFurniture);
   }, [grabOnFurniture]);
@@ -66937,6 +66986,7 @@ const Floor = ({ model }) => {
   new BoxGeometry(1, 1, 1);
   new MeshStandardMaterial({ color: "#b9d0e4" });
   const [floorModel, setFloorModel] = reactExports.useState(null);
+  const { notifyReady } = reactExports.useContext(ModelResourceContext);
   reactExports.useEffect(() => {
     if (!model) {
       return;
@@ -66965,6 +67015,7 @@ const Floor = ({ model }) => {
       }
     });
     setFloorModel(modelClone);
+    notifyReady("floor");
   }, [model]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     floorModel && /* @__PURE__ */ jsxRuntimeExports.jsx("primitive", { object: floorModel, position: [0, 0.2, 4] }),
@@ -66986,9 +67037,6 @@ function Level({ updateFurnitureHandle }) {
   const { grabModels, modelAnimations, notifyReady } = reactExports.useContext(ModelResourceContext);
   const { toolPosRef: toolPosRef2 } = reactExports.useContext(GrabContext);
   const [prevModelTypes, setPrevModelTypes] = React$1.useState([]);
-  const [preveObstacleKeys, setPreveObstacleKeys] = React$1.useState(
-    []
-  );
   const startTimeRef = reactExports.useRef(null);
   const furnitureInstanceModels = reactExports.useRef(
     /* @__PURE__ */ new Map()
@@ -66999,6 +67047,8 @@ function Level({ updateFurnitureHandle }) {
   const furnitureRigidRefs = reactExports.useRef(
     /* @__PURE__ */ new Map()
   );
+  const [prevRenderIds, setPrevRenderIds] = React$1.useState([]);
+  const reqireRenderRef = reactExports.useRef(/* @__PURE__ */ new Map());
   const highlightIds = useHighlightId();
   const getPosition = ({
     position,
@@ -67031,6 +67081,31 @@ function Level({ updateFurnitureHandle }) {
     return position;
   };
   reactExports.useEffect(() => {
+    const arr = Array.from(furnitureRigidRefs.current.keys());
+    const diff = lodashExports.difference(arr, prevRenderIds);
+    diff.forEach((id2) => {
+      const type = id2.split("_")[1];
+      let renderKeys = reqireRenderRef.current.get(type) || [];
+      let tempId = id2;
+      let tempType = type;
+      if (type === EFurnitureType.foodTable) {
+        tempType = getObstacleInfo$1(id2).foodType + "Table";
+        renderKeys = [id2.replace(EFurnitureType.foodTable, tempType)];
+        console.log("Food table instance ready:", renderKeys, tempType);
+      }
+      if (renderKeys.length > 1) {
+        reqireRenderRef.current.set(
+          tempType,
+          renderKeys.filter((key) => key !== tempId)
+        );
+      } else {
+        reqireRenderRef.current.set(tempType, []);
+        notifyReady(tempType);
+      }
+    });
+    setPrevRenderIds(arr);
+  }, [furnitureRigidRefs.current.size]);
+  reactExports.useEffect(() => {
     let grabArr = Object.keys(grabModels);
     if (!grabArr.length) return;
     const diff = lodashExports.difference(grabArr, prevModelTypes);
@@ -67044,7 +67119,6 @@ function Level({ updateFurnitureHandle }) {
         if (FURNITURE_TYPES.includes(type)) {
           if (!grabModels[type]) return;
           models[type] = grabModels[type];
-          notifyReady == null ? void 0 : notifyReady(1);
         }
       });
       if (Object.keys(models).length === 0) return;
@@ -67070,6 +67144,12 @@ function Level({ updateFurnitureHandle }) {
         }
         if (furnitureInstanceModels.current.has(instanceKey)) return;
         let type = item.type === EFurnitureType.foodTable ? item.foodType + "Table" : item.type;
+        const arr2 = reqireRenderRef.current.get(item.type);
+        if (arr2) {
+          reqireRenderRef.current.set(type, [...arr2, instanceKey]);
+        } else {
+          reqireRenderRef.current.set(type, [instanceKey]);
+        }
         if (!models[type]) {
           return;
         }
@@ -69879,7 +69959,7 @@ const Player = reactExports.forwardRef(
     playerId
   }, ref) => {
     reactExports.useRef(false);
-    const { grabModels, modelAnimations, loading: loading2 } = reactExports.useContext(ModelResourceContext);
+    const { grabModels, modelAnimations, notifyReady } = reactExports.useContext(ModelResourceContext);
     const grabSystem = useGrabSystem(playerId);
     useProgressBar(playerId);
     const { heldItem } = grabSystem;
@@ -69905,14 +69985,21 @@ const Player = reactExports.forwardRef(
     );
     const isGrabActionPlay = reactExports.useRef(false);
     reactExports.useRef(false);
-    const characterModel = reactExports.useMemo(() => {
-      if (!grabModels.player) return null;
-      if (playerId === "firstPlayer") {
-        return grabModels.player;
-      } else {
-        return grabModels.player2;
+    const [characterModel, setCharacterModel] = reactExports.useState(
+      null
+    );
+    reactExports.useEffect(() => {
+      if (grabModels.player && !characterModel && playerId === "firstPlayer") {
+        setCharacterModel(grabModels.player);
+        notifyReady("player");
       }
-    }, [grabModels.player, grabModels.player2]);
+    }, [grabModels.player]);
+    reactExports.useEffect(() => {
+      if (grabModels.player2 && !characterModel && playerId === "secondPlayer") {
+        setCharacterModel(grabModels.player2);
+        notifyReady("player2");
+      }
+    }, [grabModels.player2]);
     const {
       isHighLight,
       getFurnitureNearest,
@@ -70474,9 +70561,9 @@ function LoadingManager2() {
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: 8, fontSize: 12, opacity: 0.9 }, children: [
-              loadedCount,
+              loadedCount.length,
               "/",
-              totalCount,
+              totalCount.length,
               " 已加载"
             ] })
           ]
@@ -70512,4 +70599,4 @@ const root = client.createRoot(document.querySelector("#root"));
 root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-Cvdy6KPx.js.map
+//# sourceMappingURL=index-CbWPuK66.js.map
