@@ -34464,7 +34464,7 @@ const Cache = {
     this.files = {};
   }
 };
-class LoadingManager {
+let LoadingManager$1 = class LoadingManager {
   constructor(onLoad, onProgress, onError) {
     const scope = this;
     let isLoading = false;
@@ -34535,8 +34535,8 @@ class LoadingManager {
       return null;
     };
   }
-}
-const DefaultLoadingManager = /* @__PURE__ */ new LoadingManager();
+};
+const DefaultLoadingManager = /* @__PURE__ */ new LoadingManager$1();
 class Loader {
   constructor(manager) {
     this.manager = manager !== void 0 ? manager : DefaultLoadingManager;
@@ -36067,7 +36067,7 @@ class ObjectLoader extends Loader {
       }
     }
     if (json !== void 0 && json.length > 0) {
-      const manager = new LoadingManager(onLoad);
+      const manager = new LoadingManager$1(onLoad);
       loader = new ImageLoader(manager);
       loader.setCrossOrigin(this.crossOrigin);
       for (let i2 = 0, il2 = json.length; i2 < il2; i2++) {
@@ -40038,7 +40038,7 @@ const THREE = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   LinearTransfer,
   Loader,
   LoaderUtils,
-  LoadingManager,
+  LoadingManager: LoadingManager$1,
   LoopOnce,
   LoopPingPong,
   LoopRepeat,
@@ -52022,7 +52022,7 @@ const MODEL_PATHS = {
   food: {
     burger: "./kenney_food-kit/burger.glb",
     cheese: "./kenney_food-kit/cheese.glb",
-    bread: "./kenney_food-kit/meat-pie.glb",
+    bread: "./kenney_food-kit/bread.glb",
     tomato: "./kenney_food-kit/tomato.glb",
     tomatoCut: "./kenney_food-kit/tomato-cut.glb",
     meatPatty: "./kenney_food-kit/meat-patty.glb",
@@ -52119,7 +52119,7 @@ const ModelResourceProvider = ({
           ([type]) => !PRIORITY_TYPES.includes(type) && !GrabTypes.includes(type)
         );
         if (mounted) {
-          setTotalCount(10 + 6);
+          setTotalCount(PRIORITY_TYPES.length + GrabTypes.length);
           setLoadedCount(0);
           setLoading(true);
         }
@@ -52201,7 +52201,7 @@ const ModelResourceProvider = ({
       loading: loading2,
       loadedCount,
       totalCount,
-      progress: totalCount > 0 ? Math.round(loadedCount / totalCount * 100) : 0,
+      progress: totalCount > 0 ? Math.min(Math.round(loadedCount / totalCount * 100), 100) : 0,
       textures,
       modelAnimations,
       notifyReady: (count = 1) => {
@@ -59275,7 +59275,7 @@ const GRAB_ARR = [
     rotateDirection: EDirection.normal
   },
   {
-    type: EFoodType.bread,
+    type: EFoodType.meatPatty,
     // position: [-6, 0, 5],
     position: [6, 0, 7],
     size: [0.8, 0.08, 0.8],
@@ -65114,10 +65114,6 @@ const createFoodItem = (item, model, visible = true, modelMapRef2) => {
     isCook: void 0,
     isCut: void 0
   };
-  if (item.type === EFoodType.meatPatty) {
-    obj.isCook = true;
-    obj.isCut = true;
-  }
   return obj;
 };
 function generateUUID$1() {
@@ -66353,7 +66349,14 @@ const Score = () => {
 };
 const TimeRemaining = ({ time: time2 = 200 }) => {
   const [timeLeft, setTimeLeft] = reactExports.useState(time2);
+  const ctx = reactExports.useContext(ModelResourceContext);
+  if (!ctx) return null;
+  const { progress: progress2 } = ctx;
+  const isReady = reactExports.useMemo(() => {
+    return progress2 === 100;
+  }, [progress2]);
   reactExports.useEffect(() => {
+    if (!isReady) return;
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 0) {
@@ -66363,7 +66366,7 @@ const TimeRemaining = ({ time: time2 = 200 }) => {
       });
     }, 1e3);
     return () => clearInterval(timer);
-  }, []);
+  }, [isReady]);
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -70551,6 +70554,73 @@ const CanvasWrapper2 = ({ children }) => {
     }
   );
 };
+function LoadingManager2() {
+  const ctx = reactExports.useContext(ModelResourceContext);
+  if (!ctx) return null;
+  const { loadedCount, totalCount, progress: progress2 } = ctx;
+  if (progress2 === 100) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      style: {
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none"
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          style: {
+            width: 320,
+            padding: 12,
+            background: "rgba(0,0,0,0.6)",
+            color: "white",
+            borderRadius: 8,
+            textAlign: "center"
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: 8 }, children: [
+              "模型加载中… ",
+              progress2,
+              "%"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                style: {
+                  height: 8,
+                  background: "rgba(255,255,255,0.12)",
+                  borderRadius: 4
+                },
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "div",
+                  {
+                    style: {
+                      width: `${progress2}%`,
+                      height: "100%",
+                      background: "#4caf50",
+                      borderRadius: 4,
+                      transition: "width 200ms linear"
+                    }
+                  }
+                )
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: 8, fontSize: 12, opacity: 0.9 }, children: [
+              loadedCount,
+              "/",
+              totalCount,
+              " 已加载"
+            ] })
+          ]
+        }
+      )
+    }
+  );
+}
 function App() {
   reactExports.useEffect(() => {
     const handleKeyDown = (e2) => {
@@ -70562,17 +70632,20 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(GrabContextProvider, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ModelResourceProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CanvasWrapper2, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Experience, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ViewControls, {})
-    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ModelResourceProvider, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(CanvasWrapper2, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Experience, {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ViewControls, {})
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingManager2, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(TimeRemaining, {})
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(MenuGoals, {}),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Score, {}),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(TimeRemaining, {})
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Score, {})
   ] });
 }
 const root = client.createRoot(document.querySelector("#root"));
 root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-D_YQoeWa.js.map
+//# sourceMappingURL=index-Dx52OLZw.js.map
