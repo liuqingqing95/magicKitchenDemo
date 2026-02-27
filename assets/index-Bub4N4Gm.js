@@ -51845,11 +51845,13 @@ const initLoader = async () => {
   dracoLoader.preload();
   loader.setDRACOLoader(dracoLoader);
   try {
-    const module = await __vitePreload(() => import(`${"./"}assets/meshopt_decoder.module.js`), true ? [] : void 0, import.meta.url);
-    const { MeshoptDecoder } = module.default || module;
-    MeshoptDecoder.ready.then(() => {
-      loader.setMeshoptDecoder(MeshoptDecoder);
-    });
+    const { MeshoptDecoder } = await __vitePreload(async () => {
+      const { MeshoptDecoder: MeshoptDecoder2 } = await import("./meshopt_decoder.module-7M1pj7lP.js");
+      return { MeshoptDecoder: MeshoptDecoder2 };
+    }, true ? [] : void 0, import.meta.url);
+    console.log("Loading MeshoptDecoder from:", MeshoptDecoder);
+    loader.setMeshoptDecoder(MeshoptDecoder);
+    console.log("MeshoptDecoder loaded successfully");
   } catch (error2) {
     console.error("Failed to load MeshoptDecoder:", error2);
   }
@@ -70597,4 +70599,4 @@ const root = client.createRoot(document.querySelector("#root"));
 root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-D-XhPjRP.js.map
+//# sourceMappingURL=index-Bub4N4Gm.js.map
