@@ -52268,15 +52268,9 @@ const ModelResourceProvider = ({
             }));
           }
         });
-        for (const entry of priorityEntries) {
-          yield loadOne(entry);
-        }
-        for (const entry of grabEntries) {
-          yield loadOne(entry);
-        }
-        for (const entry of restEntries) {
-          yield loadOne(entry);
-        }
+        yield Promise.all(priorityEntries.map((entry) => loadOne(entry)));
+        yield Promise.all(grabEntries.map((entry) => loadOne(entry)));
+        yield Promise.all(restEntries.map((entry) => loadOne(entry)));
       } catch (e2) {
         console.error("ModelResourceProvider load error:", e2);
       } finally {
@@ -70948,4 +70942,4 @@ const root = client.createRoot(document.querySelector("#root"));
 root.render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(Provider_default, { store, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-//# sourceMappingURL=index-DKn79bW-.js.map
+//# sourceMappingURL=index-leq15G2o.js.map
